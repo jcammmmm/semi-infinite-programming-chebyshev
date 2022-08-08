@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: monospace;
+    font-family: cursive;
+    font-family: serif;
+  }
+
+  /* Create three equal columns that floats next to each other */
+  .column-content {
+    float: left;
+    width: 60%;
+    padding: 10px;
+  }
+
+  .column-side {
+    float: left;
+    width: 20%;
+    padding: 10px;
+  }
+
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  /* IMPORTANT!
+   * This is a quick fix in order to left-align your equations. Because
+   * linebreaks does not work in version 3.2.
+   * see
+   * https://github.com/mathjax/MathJax/issues/2312
+   */
+  mjx-mtd {
+    display: table-cell;
+    text-align: left !important;
+    padding: .215em .4em;
+  }
+  </style>
+  <!-- https://www.mathjax.org/MathJax-v3.2.0-available/ -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> 
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  
+
+  <script>
+    // http://docs.mathjax.org/en/latest/options/input/tex.html
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        // https://docs.mathjax.org/en/v3.2-latest/input/tex/eqnumbers.html
+        tags: 'ams'
+      },
+    }
+  </script>
+  </head>
+<body>
+
+<!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#base-template -->
+<div class="row">
+  <div class="column-side">
+  </div>
+  <div class="column-content">
+    {{ content }}
+  </div>
+  <div class="column-side">
+  </div>
+</div>
+
+</body>
+</html>
