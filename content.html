@@ -16,15 +16,19 @@
   /* Create three equal columns that floats next to each other */
   .column-content {
     float: left;
-    width: 60%;
+    width: 45%;
     padding: 10px;
   }
 
   .column-side {
     float: left;
-    width: 20%;
+    width: 27.5%;
     padding: 10px;
   }
+
+  /* p {
+    line-height: 130%;
+  } */
 
   /* Clear floats after the columns */
   .row:after {
@@ -68,34 +72,68 @@
   <div class="column-side">
   </div>
   <div class="column-content">
-    <h1>1</h1>
+    <h2>1</h2>
 <p>Un problema de programación semi-infinita (SIP) tiene la siguiente 
 descripción:</p>
 <p>$$
 \begin{equation}
 \displaylines{
   \min \quad f(x) \newline
-  \textrm{s.t.} \quad g_{i}(x, \omega), \quad x \in \mathbb{R}, \quad \omega \in \Omega, \quad |\Omega| = \infty 
+  \textrm{s.a.} \quad g_{i}(x, w) \leq 0, \quad x \in \mathbb{R}, \quad w \in \Omega, \quad |\Omega| = \infty 
 }
 \label{eq:problemdef}
 \end{equation}
 $$</p>
-<p>Donde para $\eqref{eq:problemdef}$
+<p>Donde 
   $ f: K \mapsto \mathbb{R} $ y
   $ g: K \times \Omega \mapsto \mathbb{R} $ son funciones continuas,
-  $ \Omega \subseteq \mathbb{R} $, 
-  $ K \subseteq \mathbb{R} $.</p>
-<p>También</p>
-<h2>1.1</h2>
-<h3>1.1.2</h3>
-<p>$$
-\begin{align}
-&amp;\min_{w,b,\xi} \quad \frac{1}{2}w^{t}w+C\sum_{i=1}^{N}{\xi_{i}}\\
-&amp;\textrm{subject to} \quad y_{i}(w\phi(x_{i}+b))+\xi_{i}-1\\
-\end{align}
-$$</p>
-<p>When $a \ne 0$, there are two solutions to $ax^2 + bx + c = 0$ and they are
-$$x = {-b \pm \sqrt{b^2-4ac} \over 2a}.$$</p>
+  $ \Omega \subseteq \mathbb{R}^{n-1} $, 
+  $ K \subseteq \mathbb{R}^{m} $.</p>
+<p>También el problema $\eqref{eq:problemdef}$ puede escribirse de la siguiente manera:
+$$
+\begin{equation}
+\displaylines{
+  \min \quad z \newline
+  \textrm{s.a.} \quad g_{i}(x, w) &amp;\leq 0, \newline
+  \qquad \quad f(x) &amp;\leq z 
+}
+\label{eq:problemdef2}
+\end{equation}
+$$
+donde $ g, f, x, w, K, \Omega $ tienen la misma forma que en $\eqref{eq:problemdef}$ 
+y $ z \in K $. Esta nueva representación es equivalente porque una vez se cumplen las
+restricciones de la función $ g(x, w) $, ahora el menor valor lo impone $ f(x) $,
+como en el problema original. </p>
+<h2>2</h2>
+<p>El problema de aproximación de Chebyshev puede ser formulado de maneras varias, una 
+de ellas es la siguiente se describe con el siguiente problema <em>minimax</em>:
+$$
+\begin{equation}
+  \min \max_{w \in \Omega} |d(w) - F(x, w)|
+  \quad \textrm{con} \quad x \in K_{n-1}
+  \label{eq:chebyshevproblem}
+\end{equation}
+$$
+donde 
+  $ K_{n-1} \subseteq \mathbb{R}^{n-1} $ y 
+  $ \Omega \subseteq \mathbb{R}^{m} $ son no vacíos y compactos, 
+  $ d: \Omega \mapsto \mathbb{R} $ y 
+  $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ son funciones continuas y dadas
+  como entrada al problema.</p>
+<h2>3</h2>
+<p>El problema $ \eqref{eq:chebyshevproblem} $ puede expresarse de la siguiente manera:
+$$
+\begin{equation}
+\displaylines{
+  \min \quad f(x) := z, \; x := (\tilde{x}, z),\; \tilde{x} \in \mathbb{R}^{n-1},\; z \in \mathbb{R} \newline
+  \textrm{s.a.} \quad g(x, w) := |d(w) - F(\tilde(x), w)| - z \leq 0,\; w \in \Omega \newline
+}
+\end{equation}
+$$
+El problema <em>minimax</em> en $ \eqref{eq:chebyshevproblem} $ puede verse de la siguiente manera. 
+La minimizaciónse encuentra en la reducción del valor de $ f(x) $. La maximización se observa 
+al momento de encontrar una diferencia $ |d(w) - F(\tilde{x}, w)| $ lo suficientemente 
+amplia para sobrepasar $ z $ y satisfacer la restricción $ g(x, w) $.</p>
   </div>
   <div class="column-side">
   </div>
