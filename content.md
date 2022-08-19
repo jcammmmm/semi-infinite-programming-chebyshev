@@ -3,12 +3,25 @@
 [//]: # (https://math.meta.stackexchange.com/questions/11720/new-line-within-mathjax)
 [//]: # (https://en.m.wikibooks.org/wiki/LaTeX/Mathematics  )
 
-# Numerical solution of function approximation problems as semi-infinite problems
+$$
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cc}[1]{\mathcal{#1}}
+\newcommand{\txt}[1]{\;\textrm{#1}\;}
+\newcommand{\problemUnconstr}{\min f(x)\; \txt{s.t.}\; x \in \bb{R}^n}
+\newcommand{\problemMinimizeSingle}[2]{\min #1\; \txt{s.t.}\; #2 }
+\newcommand{\problemMinimizeMulti}[2]{
+  \displaylines{
+    \min #1 \newline
+    \txt{s.t.} #2
+  }
+}
+$$
 
-``` 
-ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This restatement uses the tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in the Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown previously are computed.
-KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
-```
+# Numerical solution of function approximation problems as semi-infinite programming problems
+
+>> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This restatement uses the tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.  
+> KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
+
 
 ## 1. Problem's definition
 In this section we will provide the necessesary definitions in order to put the _Chebyshev's approximation problem_ (CAP) in terms of a _semi-infinite programming problem_ (SIP).
@@ -20,20 +33,20 @@ $$
 \begin{equation}
 \displaylines{
   \min \; f(x) \newline
-  \textrm{s.t.} \; g(x, w) \leq 0, \; x \in \mathbb{R}, \; w \in \Omega, \; |\Omega| = \infty 
+  \textrm{s.t.} \; g(x, w) \leq 0, \; x \in \bb{R}, \; w \in \Omega, \; |\Omega| = \infty 
 }
 \label{eq:problemdef}
 \end{equation}
 $$
 
-Where 
-  $ f: K \mapsto \mathbb{R} $ y
-  $ g: K \times \Omega \mapsto \mathbb{R} $ are smooth functions, 
+where 
+  $ f: K \mapsto \bb{R} $ y
+  $ g: K \times \Omega \mapsto \bb{R} $ are smooth functions, 
   with
-  $ \Omega \subseteq \mathbb{R}^{n-1} $, 
-  $ K \subseteq \mathbb{R}^{m} $.
+  $ \Omega \subseteq \bb{R}^{n-1} $, 
+  $ K \subseteq \bb{R}^{m} $.
 
-Put in other words, a SIP is just a minimization problem where one of the constraints is parametrized with a variable that belongs to an infinite set, leaving virtually an infinite number of constrains (one for each possible parameter value).
+In other words, a SIP is just a minimization problem where one of the constraints is parametrized with a variable that belongs to an infinite set, leaving virtually an infinite number of constrains (one for each possible parameter value).
 
 También el problema $\eqref{eq:problemdef}$ puede escribirse de la siguiente manera:
 $$
@@ -53,7 +66,7 @@ El problema de aproximación de Chebyshev puede ser formulado de maneras varias,
 $$
 \begin{equation}
   \min \max_{w \in \Omega} |d(w) - F(x, w)|
-  \;\textrm{con}\; x \in K_{n-1}
+  \;\textrm{with}\; x \in K_{n-1}
   \label{eq:chebyshevproblem}
 \end{equation}
 $$
@@ -74,10 +87,20 @@ $$
 \end{equation}
 $$
 
-El problema _minimax_ en $ \eqref{eq:chebyshevproblem} $ puede verse de la siguiente manera. La minimizaciónse encuentra en la reducción del valor de $ f(x) $. La maximización se observa al momento de encontrar una diferencia $ |d(w) - F(\tilde{x}, w)| $ lo suficientemente amplia para sobrepasar $ z $ y satisfacer la restricción $ g(x, w) $.
+El problema _minimax_ en $ \eqref{eq:chebyshevproblem} $ puede verse de la siguiente manera. La minimización se encuentra en la reducción del valor de $ f(x) $. La maximización se observa al momento de encontrar una diferencia $ |d(w) - F(\tilde{x}, w)| $ lo suficientemente amplia para sobrepasar $ z $ y satisfacer la restricción $ g(x, w) $.
+
+Another example that can help to understand this _reformulation technique_ [6:307] can be seen when the kinks (no differentiable points) are removed from the following optimization problem:
+$$
+\problemMinimizeSingle{\max(x^2, x)}{x \in \bb{R}}
+$$
+in order to have a smooth one, by adding the artificial variable $ t $:
+$$
+\problemMinimizeSingle{t}{t \geq x,\; t \geq x^2,\; t \in \bb{R}}
+$$
+
 
 ### 1.4 CAPs to solve
-After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{eq:chebyshevproblem} $. In order to compare this document's results to other autors, $ d(w) $ is defined as the following polynom:
+After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{eq:chebyshevproblem} $. In order to compare this document's results to other autors, $ d(w) $ is defined as the following polynomial:
 $$
 \begin{equation}
 x_1^{i_1} x_2^{i_2} = \Sigma
@@ -85,14 +108,15 @@ x_1^{i_1} x_2^{i_2} = \Sigma
 $$
 
 ## 2 SQP Method
-Para resolver el problema de Chebyshev se hará uso de MATLAB y la rutina _fseminf_. Esta rutina internamente funciones con el método SQP (Sequential Quadratic Programming). Para entender este método conviene revisar los siguientes conceptos:
+CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in _fseminf_ routine that belongs to the Optimization Package Extension. 
+
+Current section's aim is to explain the core gears of SQP method, that relies on the concepts of _Newton's Method_ for polynomial root approximation, _Langrage multipliers_ for local constraint optimization, _Kuhn-Karush-Tucker_ First Order conditions and _Quadratic Programming_. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of _Calculus Theory_.
 
 ### 2.1 Newton's Method
-As pointed out by several authors **[3]** this is one of the most important techniques in numerical optimization because of its fast rate of convergence. In fact, some optimization books (**[2]**, **[3]**) at least one chapter is devoted to develop better convergence and to lease undesired behaviors of this technique.
 
-Having the nonlinear uncostrained minimization problem $ \min f(x)\; s.t.\; x \in \mathbb{R}^n $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. This means that we have a system of $ n $ non-linear equations that must be equal to $ 0 $.
+The Newton's method is a numerical method that approximates the roots of a smooth function (i.e. $ x $ where $ f(x) $ vanishes). Since this is a necessary condition for a maximizer point, this method is employed intensively within the optimization theory.
 
-The Newton's method is a numerical method that approximates the roots of a smooth function (i.e. $ x $ where $ f(x) $ vanishes). For that reason this method is employed intensively within the optimization theory.
+Having the nonlinear uncostrained minimization problem $ \problemUnconstr $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. This means that we have a system of $ n $ non-linear equations that must be equal to $\min f(x)$ s.t. $g(x) = c$.
 
 The idea of the method is to employ a linear approximation for the point that should be the function's root. This is written as usual:
 $$
@@ -103,23 +127,52 @@ $$
 
 Where $ h $ is the extent from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
 $$
-\begin{equation}
+\begin{align}
 \displaylines{
-  g(x) + g'(x)h = 0 \newline
-  g'(x)h = -g(x) \newline
-  h = -\frac{g(x)}{g'(x)h} \newline
+  g(x) + g'(x)h &= 0 \newline
+  g'(x)h &= -g(x) \newline
+  h &= -\frac{g(x)}{g'(x)h} \newline
 }
-\end{equation}
+\end{align}
 $$
 
 Since this result is an approximation to the true $ x $ that vanishes $ g(x) $, the value $ x^N = x + h $ can be employed as starting point for the next iteration. The method finishes when a precision threshold is met.
 
+As pointed out by several authors **[3]** this is one of the most important techniques in numerical optimization because of its fast rate of convergence. In fact, some optimization books (**[2]**, **[3]**) at least one chapter is devoted to develop better convergence and to lease undesired behaviors of this technique.
+
 As stated before, and for the following subsections, here we will only provide an overview of the core method. Further details can be found in the addressed references.
 
 ### 2.2 Lagrange Multipliers
+This method appears naturally when the unconstrained problem $ \min f(x) $ $ \txt{s.t.} $ $ x \in \bb{R} $ becomes constrained by equalities, i.e: $ \min f(x) $ $ \txt{s.t.} $ $ g(x) = c $, $ c \in \bb{R} $. 
+
+At its core the method imposes a necessary condition to any critical point $ x^\star $ as follows. Let $ f: K^n \mapsto \bb{R} $ and $ g: K^n \mapsto \bb{R} $ be $ C^1 $ real functions, $ K^n \subseteq \bb{R}^n $, $ x^\star \in K $, $ g(x^\star) = c $, $ S = \lbrace x \in \bb{R} \;|\; g(x) = c \rbrace $ (i.e. the level set) and $ \nabla g(x^\star) ≠ 0 $. If $ f|S $ ($ f $ restricted to $ S $) has an optimal value at $ x^\star $, then there is a real number $ \lambda $ such that
+$$
+\begin{equation}
+  \nabla f(x^\star) = \lambda \nabla g(x^\star).
+  \label{lagrangeoptcriteria}
+\end{equation}
+$$
+
+Seemingly, if there are several constraints, for the minimization problem:
+$$
+\begin{equation}
+  \problemMinimizeMulti
+  {f(x),\; x \in \bb{R}^n}
+  {g_i(x) = c_i, \; c_i \in \bb{R}^n, \; i \in \cc{I} \subset \bb{N}}
+\end{equation}
+$$
+the optimal criteria $\eqref{lagrangeoptcriteria} $ becomes:
+$$
+\nabla f(x^\star) = \sum_{i \in \cc{I}} \lambda_{i} \nabla g_i(x^\star)
+\begin{equation}
+
+\end{equation}
+$$
+
 Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.
 
 ### 2.3 Condiciones KKT
+Knonw also as _First-Order Necessary Conditions_
 Las condiciones KKT son condiciones suficientes que debe satisfacer un punto para que sea considerado como óptimo
 
 ### 2.4 Programación Quadrática
@@ -128,10 +181,15 @@ Es un método de aproximación local
 ### 2.5 Método SQP
 Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...
 
-## 5 Code reading overview
+## 3 Code reading overview
 In this section we will examine the source code of _fseminf_ routine. Having the 
 knoledge of SQP Methods, we will point out what ideas are applied and in which 
 parts.
+
+## TODO
+- Change 'continuous' by 'smooth', or belongs to C^i, because 'continuos' does not  mean 'diffrenciable'.
+- Expand the idea of necessary and sufficient conditions, to expand the Lagrange multipliers method to region constraints.
+- Add the examples to the end of the first section.
 
 
 
@@ -143,4 +201,4 @@ parts.
 **[4]** Reemtsen R., Discretizations Methods for the Solutions of Semi-
 In nite Programming Problems, J. Optim. Theory Appl, 71 (1991),
 pp. 85-103.    
-**[5]** Marsden, Tromba - Vector Calculus
+**[6]** Nocedal

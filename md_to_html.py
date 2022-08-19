@@ -1,4 +1,5 @@
 import markdown as md
+import datetime as time
 from jinja2 import Environment, FileSystemLoader
 
 # FILENAME = '220808Fileshare'
@@ -15,3 +16,4 @@ print(html)
 
 post = env.get_template('layout.html').render(content=html)
 open(FILENAME + '.html', 'w+').write(post)
+open(FILENAME + '.html', 'a').write('last update: ' + str(time.datetime.now()))
