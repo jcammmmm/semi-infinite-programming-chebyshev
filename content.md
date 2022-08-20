@@ -19,14 +19,30 @@ $$
 
 # Numerical solution of function approximation problems as semi-infinite programming problems
 
->> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This restatement uses the tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.  
+>> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.  
 > KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
 
+## Table of Contents
+[TOC]
 
 ## 1. Problem's definition
 In this section we will provide the necessesary definitions in order to put the _Chebyshev's approximation problem_ (CAP) in terms of a _semi-infinite programming problem_ (SIP).
 
-### 1.1 Semi-infinite programming problem _(SIP)_
+### 1.1 Chebyshev approximation problem _(CAP)_
+The _Chebyshev approximation problem_ can be formulated in serveral ways, one of them is described as the following _minimax_ problem:
+$$
+\begin{equation}
+  \min_{ x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
+  \label{eq:chebyshevproblem}
+\end{equation}
+$$
+where 
+  $ K_{n-1} \subseteq \mathbb{R}^{n-1} $ and
+  $ \Omega \subseteq \mathbb{R}^{m} $ are non-empty and compact sets, 
+  $ d: \Omega \mapsto \mathbb{R} $ and
+  $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem.
+
+### 1.2 Semi-infinite programming problem _(SIP)_
 In general terms, a SIP is an optimization problem described as follows:
 
 $$
@@ -40,41 +56,25 @@ $$
 $$
 
 where 
-  $ f: K \mapsto \bb{R} $ y
-  $ g: K \times \Omega \mapsto \bb{R} $ are smooth functions, 
-  with
+  $ f: K \mapsto \bb{R} $ and
+  $ g: K \times \Omega \mapsto \bb{R} $ are smooth functions ($ g $ will be referred as semi-infinite constraint), with
   $ \Omega \subseteq \bb{R}^{n-1} $, 
-  $ K \subseteq \bb{R}^{m} $.
+  $ K \subseteq \bb{R}^{m} $. In general, this problem definition can have other kind constraints, i.e. equality, inequality and several semi-infinite constraints, but at least must be one semi-infinite constraint to have a SIP.
 
 In other words, a SIP is just a minimization problem where one of the constraints is parametrized with a variable that belongs to an infinite set, leaving virtually an infinite number of constrains (one for each possible parameter value).
 
-También el problema $\eqref{eq:problemdef}$ puede escribirse de la siguiente manera:
+Also, the problem $ \eqref{eq:problemdef} $ can be written as follows:
 $$
 \begin{equation}
 \displaylines{
   \min \quad z \newline
-  \textrm{s.a.} \quad g_{i}(x, w) &\leq 0, \newline
+  \textrm{s.a.} \quad g(x, w) &\leq 0, \newline
   \qquad \quad f(x) &\leq z 
 }
 \label{eq:problemdef2}
 \end{equation}
 $$
-donde $ g, f, x, w, K, \Omega $ tienen la misma forma que en $\eqref{eq:problemdef}$ y $ z \in K $. Esta nueva representación es equivalente porque una vez se cumplen las restricciones de la función $ g(x, w) $, ahora el menor valor lo impone $ f(x) $, como en el problema original. 
-
-### 1.2 Chebyshev approximation problem _(CAP)_
-El problema de aproximación de Chebyshev puede ser formulado de maneras varias, una de ellas es la siguiente se describe con el siguiente problema _minimax_:
-$$
-\begin{equation}
-  \min \max_{w \in \Omega} |d(w) - F(x, w)|
-  \;\textrm{with}\; x \in K_{n-1}
-  \label{eq:chebyshevproblem}
-\end{equation}
-$$
-donde 
-  $ K_{n-1} \subseteq \mathbb{R}^{n-1} $ y 
-  $ \Omega \subseteq \mathbb{R}^{m} $ son no vacíos y compactos, 
-  $ d: \Omega \mapsto \mathbb{R} $ y 
-  $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ son funciones continuas y dadas como entrada al problema.
+where $ g, f, x, w, K, \Omega $ has the same types as in $\eqref{eq:problemdef}$ and $ z \in K $. This new reformulation is equivalent since once the constraint $ g(x, w) $ is satisfied, now the least value is imposed by $ f(x) $, as in the original problem.
 
 ### 1.3 CAP in terms of SIP
 El problema $ \eqref{eq:chebyshevproblem} $ puede expresarse de la siguiente manera:
@@ -84,22 +84,25 @@ $$
   \min \quad f(x) := z, \; x := (\tilde{x}, z),\; \tilde{x} \in \mathbb{R}^{n-1},\; z \in \mathbb{R} \newline
   \textrm{s.a.} \quad g(x, w) := |d(w) - F(\tilde{x}, w)| - z \leq 0,\; w \in \Omega \newline
 }
+\label{capsip}
 \end{equation}
 $$
 
 El problema _minimax_ en $ \eqref{eq:chebyshevproblem} $ puede verse de la siguiente manera. La minimización se encuentra en la reducción del valor de $ f(x) $. La maximización se observa al momento de encontrar una diferencia $ |d(w) - F(\tilde{x}, w)| $ lo suficientemente amplia para sobrepasar $ z $ y satisfacer la restricción $ g(x, w) $.
 
-Another example that can help to understand this _reformulation technique_ [6:307] can be seen when the kinks (no differentiable points) are removed from the following optimization problem:
+The following example can help to understand this _reformulation technique_ [6:307]. This reformulation removes non-differentiable points at $ x = 0 $ and $ x = 1 $ from:
 $$
 \problemMinimizeSingle{\max(x^2, x)}{x \in \bb{R}}
 $$
-in order to have a smooth one, by adding the artificial variable $ t $:
+in order to have a smooth problem. This is achieved by adding the artificial variable $ t $:
 $$
 \problemMinimizeSingle{t}{t \geq x,\; t \geq x^2,\; t \in \bb{R}}
 $$
 
+### 1.4 Problem Model
+Aiming to employ the SIP reformulation in $ \eqref{capsip} $ within the SQP framework, here 
 
-### 1.4 CAPs to solve
+### 1.5 Some Problem Instances
 After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{eq:chebyshevproblem} $. In order to compare this document's results to other autors, $ d(w) $ is defined as the following polynomial:
 $$
 \begin{equation}
@@ -107,7 +110,7 @@ x_1^{i_1} x_2^{i_2} = \Sigma
 \end{equation}
 $$
 
-## 2 SQP Method
+## 2. SQP Method
 CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in _fseminf_ routine that belongs to the Optimization Package Extension. 
 
 Current section's aim is to explain the core gears of SQP method, that relies on the concepts of _Newton's Method_ for polynomial root approximation, _Langrage multipliers_ for local constraint optimization, _Kuhn-Karush-Tucker_ First Order conditions and _Quadratic Programming_. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of _Calculus Theory_.
@@ -127,13 +130,13 @@ $$
 
 Where $ h $ is the extent from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
 $$
-\begin{align}
+\begin{equation}
 \displaylines{
   g(x) + g'(x)h &= 0 \newline
   g'(x)h &= -g(x) \newline
   h &= -\frac{g(x)}{g'(x)h} \newline
 }
-\end{align}
+\end{equation}
 $$
 
 Since this result is an approximation to the true $ x $ that vanishes $ g(x) $, the value $ x^N = x + h $ can be employed as starting point for the next iteration. The method finishes when a precision threshold is met.
@@ -161,19 +164,15 @@ $$
   {g_i(x) = c_i, \; c_i \in \bb{R}^n, \; i \in \cc{I} \subset \bb{N}}
 \end{equation}
 $$
-the optimal criteria $\eqref{lagrangeoptcriteria} $ becomes:
+the optimal criteria $ \eqref{lagrangeoptcriteria} $ becomes:
 $$
 \nabla f(x^\star) = \sum_{i \in \cc{I}} \lambda_{i} \nabla g_i(x^\star)
-\begin{equation}
-
-\end{equation}
 $$
 
 Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.
 
 ### 2.3 Condiciones KKT
 Knonw also as _First-Order Necessary Conditions_
-Las condiciones KKT son condiciones suficientes que debe satisfacer un punto para que sea considerado como óptimo
 
 ### 2.4 Programación Quadrática
 Es un método de aproximación local
@@ -181,7 +180,7 @@ Es un método de aproximación local
 ### 2.5 Método SQP
 Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...
 
-## 3 Code reading overview
+## 3. Code reading overview
 In this section we will examine the source code of _fseminf_ routine. Having the 
 knoledge of SQP Methods, we will point out what ideas are applied and in which 
 parts.
