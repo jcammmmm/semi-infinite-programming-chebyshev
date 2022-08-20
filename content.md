@@ -77,27 +77,55 @@ $$
 where $ g, f, x, w, K, \Omega $ has the same types as in $\eqref{eq:problemdef}$ and $ z \in K $. This new reformulation is equivalent since once the constraint $ g(x, w) $ is satisfied, now the least value is imposed by $ f(x) $, as in the original problem.
 
 ### 1.3 CAP in terms of SIP
-El problema $ \eqref{eq:chebyshevproblem} $ puede expresarse de la siguiente manera:
+The following example can help to understand the _reformulation technique_ [6:307] employed at the end of this subsection that will allow to pose CAP in terms of SIP. In the following example, this reformulation removes the non-differentiable points at $ x = 0 $ and $ x = 1 $:
+$$
+\begin{equation}
+\problemMinimizeSingle{\max(x^2, x)}{x \in \bb{R}}
+\label{capsipex1}
+\end{equation}
+$$
+The reformulation consist only in adding the artificial variable $ t $:
+$$
+\problemMinimizeSingle{t \in \bb{R}}{t \geq x,\; t \geq x^2,\; x \in \bb{R}}
+$$
+The trick happens when minimization of $ t $ is done from above for $ x $ and $ x^2 $ i.e. $ t \geq x $ and $ t \geq x^2 $. If $ t_i^\star $ denotes a feasible $ t $, then $ t_i^\star $ must satisfy all the constraints, which means that each $ t_i^\star $ necessarily forms a set $ F $ of feasible upper bounds for the constraints set $ C =  \lbrace x \in \bb{R} | \; t \geq x,\; t \geq x^2,\; t \in \bb{R} \rbrace $. Since $ F $ is a partially ordered set, the query for the least element (minimum) can be made. Moreover, by the _supremum property_ $ F $ has an infimum (minimum) value because $ F $ is bounded below by $ C $.
+
+The same idea can be applied easily for several constraint rules, for instance:
+$$
+\begin{equation}
+\problemMinimizeSingle{\max(x^7 - x^6, x^5 - x^4, x^3 - x^2, x - 1)}{x \in \bb{R}}
+\label{capsipex2}
+\end{equation}
+$$
+can be reformulated into the equivalent one:
+$$
+\problemMinimizeSingle{t \in \bb{R}}{x^7 - x^6 \leq t,\; x^5 - x^4 \leq t,\; x^3 - x^2 \leq t,\; x - 1 \leq t,\; x \in \bb{R}}.
+$$
+
+And naturally, the same technique used in $ \eqref{capsipex1} $ and $ \eqref{capsipex2} $ can be applied for the semi-infinite programming problem in $ \eqref{capsipex3} $:
+$$
+\begin{equation}
+\min_{x \in \bb{R}} \max_{i \in \bb{N}} g_i(x)
+\label{capsipex3}
+\end{equation}
+$$
+is equivalent to the following problem:
+$$
+\min t \in \bb{R} \txt{s.t.} g_i(x) \leq t,\; i \in \bb{N}.
+$$
+
+Now, problem $ \eqref{eq:chebyshevproblem} $ can be expressed **[7:200]** in the following terms:
 $$
 \begin{equation}
 \displaylines{
-  \min \quad f(x) := z, \; x := (\tilde{x}, z),\; \tilde{x} \in \mathbb{R}^{n-1},\; z \in \mathbb{R} \newline
-  \textrm{s.a.} \quad g(x, w) := |d(w) - F(\tilde{x}, w)| - z \leq 0,\; w \in \Omega \newline
+  \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
+  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
 }
 \label{capsip}
 \end{equation}
 $$
 
-El problema _minimax_ en $ \eqref{eq:chebyshevproblem} $ puede verse de la siguiente manera. La minimización se encuentra en la reducción del valor de $ f(x) $. La maximización se observa al momento de encontrar una diferencia $ |d(w) - F(\tilde{x}, w)| $ lo suficientemente amplia para sobrepasar $ z $ y satisfacer la restricción $ g(x, w) $.
-
-The following example can help to understand this _reformulation technique_ [6:307]. This reformulation removes non-differentiable points at $ x = 0 $ and $ x = 1 $ from:
-$$
-\problemMinimizeSingle{\max(x^2, x)}{x \in \bb{R}}
-$$
-in order to have a smooth problem. This is achieved by adding the artificial variable $ t $:
-$$
-\problemMinimizeSingle{t}{t \geq x,\; t \geq x^2,\; t \in \bb{R}}
-$$
+This reformulation will allow to employ the computer software and frameworks available to solve semi-infinite programming problems.
 
 ### 1.4 Problem Model
 Aiming to employ the SIP reformulation in $ \eqref{capsip} $ within the SQP framework, here 
@@ -200,4 +228,5 @@ parts.
 **[4]** Reemtsen R., Discretizations Methods for the Solutions of Semi-
 In nite Programming Problems, J. Optim. Theory Appl, 71 (1991),
 pp. 85-103.    
-**[6]** Nocedal
+**[6]** Nocedal   
+**[7]** Moradito
