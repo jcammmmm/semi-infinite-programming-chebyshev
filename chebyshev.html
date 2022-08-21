@@ -60,6 +60,14 @@
     text-align: left !important;
     padding: .215em .4em;
   }
+
+  /**
+   * REMOVES underlining for links
+   */
+  a:link { text-decoration: none; }
+  a:visited { text-decoration: none; }
+  a:hover { text-decoration: none; }
+  a:active { text-decoration: none; }
   </style>
   <!-- https://www.mathjax.org/MathJax-v3.2.0-available/ -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> 
@@ -115,7 +123,7 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <li><a href="#13-cap-in-terms-of-sip">1.3 CAP in terms of SIP</a></li>
 <li><a href="#14-approximation-function-definition">1.4 Approximation function definition</a></li>
 <li><a href="#15-problem-model-specification">1.5 Problem model specification</a></li>
-<li><a href="#16-problem-instance">1.6 Problem instance</a></li>
+<li><a href="#16-problem-instances">1.6 Problem instances</a></li>
 </ul>
 </li>
 <li><a href="#2-sqp-method">2. SQP Method</a><ul>
@@ -136,7 +144,7 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <h2 id="1-problems-definition">1. Problem's definition</h2>
 <p>In this section we will provide the necessesary definitions in order to put the <em>Chebyshev's approximation problem</em> (CAP) in terms of a <em>semi-infinite programming problem</em> (SIP).</p>
 <h3 id="11-chebyshev-approximation-problem-cap">1.1 Chebyshev approximation problem <em>(CAP)</em></h3>
-<p>The <em>Chebyshev approximation problem</em> can be formulated in serveral ways, one of them is described as the following <em>minimax</em> problem:
+<p>The <em>Chebyshev approximation problem</em> <em>(CAP)</em> can be formulated in serveral ways, one of them is described as the following <em>minimax</em> problem:
 $$
 \begin{equation}
   \min_{ x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
@@ -148,7 +156,6 @@ where
   $ \Omega \subseteq \mathbb{R}^{m} $ are non-empty and compact sets, 
   $ d: \Omega \mapsto \mathbb{R} $ and
   $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. Here, $ d(w) $ and $ F(x, w) $ represents the function to aproximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize. Note that the approximation error given by $ |d(w) - F(x, w)| $ is not squared and computed linearly.</p>
-<p>From <a href="#theorem-kkt">KKT Theorem</a></p>
 <h3 id="12-semi-infinite-programming-problem-sip">1.2 Semi-infinite programming problem <em>(SIP)</em></h3>
 <p>In general terms, a SIP is an optimization problem described as follows:</p>
 <p>$$
@@ -157,7 +164,7 @@ where
   \min \; f(x) \newline
   \textrm{s.t.} \; g(x, w) \leq 0, \; x \in \bb{R}, \; w \in \Omega, \; |\Omega| = \infty 
 }
-\label{eq:problemdef}
+\label{def-sip}
 \end{equation}
 $$</p>
 <p>where 
@@ -166,18 +173,18 @@ $$</p>
   $ \Omega \subseteq \bb{R}^{n-1} $, 
   $ K \subseteq \bb{R}^{m} $. In general, this problem definition can have other kind constraints, i.e. equality, inequality and several semi-infinite constraints, but at least must be one semi-infinite constraint to have a SIP.</p>
 <p>In other words, a SIP is just a minimization problem where one of the constraints is parametrized with a variable that belongs to an infinite set, leaving virtually an infinite number of constrains (one for each possible parameter value).</p>
-<p>Also, the problem $ \eqref{eq:problemdef} $ can be written as follows:
+<p>Also, the problem $ \eqref{def-sip} $ can be reformulated as follows:
 $$
-\begin{equation}
-\displaylines{
-  \min \quad z \newline
-  \textrm{s.a.} \quad g(x, w) &amp;\leq 0, \newline
-  \qquad \quad f(x) &amp;\leq z 
-}
-\label{eq:problemdef2}
-\end{equation}
+  \begin{equation}
+  \displaylines{
+    \min \;\; h(y) := y \newline
+    \textrm{s.t.} \quad g(x, w) \leq 0, \newline
+    \qquad \; f(x) \leq y
+  }
+  \label{def-sip2}
+  \end{equation}
 $$
-where $ g, f, x, w, K, \Omega $ has the same types as in $\eqref{eq:problemdef}$ and $ z \in K $. This new reformulation is equivalent since once the constraint $ g(x, w) $ is satisfied, now the least value is imposed by $ f(x) $, as in the original problem.</p>
+where $ g, f, x, w, K, \Omega $ have the same types as in $\eqref{def-sip}$ and $ y \in K $. This new reformulation is equivalent since once the constraint $ g(x, w) $ is satisfied, now the least value is imposed by $ f(x) $, as in the original problem.</p>
 <h3 id="13-cap-in-terms-of-sip">1.3 CAP in terms of SIP</h3>
 <p>The following example can help to understand the <em>reformulation technique</em> [6:307] employed at the end of this subsection that will allow to pose CAP in terms of SIP. In the following example, this reformulation removes the non-differentiable points at $ x = 0 $ and $ x = 1 $:
 $$
@@ -217,7 +224,7 @@ $$</p>
 $$
 \displaylines{
   \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
-  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
+  \txt{s.t.} \quad \tilde{x} \in K^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
 }
 $$
 Note that the objective function and also the restriction $ g(\tilde{x}, w) $ are both linear. Finally, the previous problem can be reformulated again by splitting the absolute value restriction $ g(\tilde{x}, w) $ to get the kinks removed as in $ \eqref{capsipex1} $:</p>
@@ -225,7 +232,7 @@ Note that the objective function and also the restriction $ g(\tilde{x}, w) $ ar
 \begin{equation}
 \displaylines{
   \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
-  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R} \newline
+  \txt{s.t.} \quad \tilde{x} \in K_{n-1},\; t \in \mathbb{R} \newline
   \qquad \quad g_1(x, w) := d(w) - F(\tilde{x}, w) \leq t  \newline
   \qquad \quad g_2(x, w) := F(\tilde{x}, w) - d(w) \leq t  \newline
   \qquad \quad w \in \Omega.
@@ -237,24 +244,46 @@ $$</p>
 <h3 id="14-approximation-function-definition">1.4 Approximation function definition</h3>
 <p>The problem shown in $ \eqref{capsip} $, requires that both <em>approximation function</em> $ F(x, w) $ and <em>target function</em> $ d(w) $ must be provided as problem's input. For now, the next <a href="#approximation-function">definition</a> will provide the function employed in numerical examples to approximate the example targets.</p>
 <p><strong>Definition 1.4.1</strong> <em id="approximation-function">(Multivariate approximation)</em>   <br>
-For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $ and $ n - 1 \in \bb{N} $, let $ F $ be the <em>multivariate polynomial</em>:
+For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the <em>multivariate polynomial</em>:
 $$ 
-F(x, w) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
+\begin{equation}
+F(x, w; d) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
+\label{eq-multivariate-approx}
+\end{equation}
 $$
 where $ x \in K_{n-1} $ is the polynomial coefficients tuple, $ w \in \Omega $, $ z: \Omega \mapsto K_{n-1} $ a vector function with $ \Omega \subseteq \mathbb{R}^{m} $, $ K_{n-1} \subseteq \mathbb{R}^{n-1} $, and each $ z_i $ the following monomial:
 $$ 
 z_i = w_1^{p_1} w_2^{p_2} ... w_{m}^{p_{m}},\; \sum_{j=0}^{m} p_j \leq d.
 $$
 with $ i = 1, ..., n-1 $ and $ p_j \in \bb{N} $. $ \quad \Box $</p>
-<h3 id="15-problem-model-specification">1.5 Problem model specification</h3>
-<p>Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem components (<em>objective function</em>, <em>decision variables</em> and <em>restrictions</em>) to feed the SQP method exposed in section 2. </p>
-<h3 id="16-problem-instance">1.6 Problem instance</h3>
-<p>After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. In order to compare this document's results to other autors, $ d(w) $ is defined as the following polynomial:
+<p>Note that the number of monomials $ k $ that will add up the polynomial is:
 $$
-\begin{equation}
-x_1^{i_1} x_2^{i_2} = \Sigma
-\end{equation}
-$$</p>
+k = \binom{m + d}{d}.
+$$
+Since each monomial has a coefficient and the factors involved in the dot product for $ \eqref{eq-multivariate-approx} $ must be dimensional consistent, the coefficients tuple dimension $ dim(x) = k $, that is $ n - 1 = k $.</p>
+<h3 id="15-problem-model-specification">1.5 Problem model specification</h3>
+<p>Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem model (<em>objective function</em>, <em>decision variables</em> and <em>constraints</em>) to feed the SQP method exposed in <a href="#2-sqp-method">section 2</a>. </p>
+<p><strong>Definition 1.5.1</strong> <em id="objective-function">(Objective function)</em> <br>
+Recalling the SIP minimization problem $ \eqref{capsip} $, the objective function for CAP is
+$$
+f(\tilde{x}, t) = t. \quad \Box
+$$ </p>
+<p><strong>Definition 1.5.2</strong> <em id="decision-variables">(Decision variables)</em> <br>
+Recalling the SIP minimization problem $ \eqref{capsip} $, the decision variables for CAP are $ \tilde{x} $ and $ w $. $ \Box $</p>
+<p><strong>Definition 1.5.3</strong> <em id="constraints">(Constraints)</em> <br>
+Recalling the SIP minimization problem $ \eqref{capsip} $, the constraints for CAP are:
+$$
+  \displaylines{
+    \tilde{x} \in K_{n-1}, \newline
+    t \in \mathbb{R}, \newline
+    w \in \Omega, \newline
+    d(w) - F(\tilde{x}, w) \leq t  \newline
+    F(\tilde{x}, w) - d(w) \leq t.
+  }
+$$
+where the target function $ d(w) $ is a given preset example (see next <a href="#16-problem-instances">subsection</a>) and approximation function $ F $ is defined as in $ \eqref{eq-multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. $ \Box $</p>
+<h3 id="16-problem-instances">1.6 Problem instances</h3>
+<p>After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. </p>
 <h2 id="2-sqp-method">2. SQP Method</h2>
 <p>CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in <em>fseminf</em> routine that belongs to the Optimization Package Extension. </p>
 <p>Current section's aim is to explain the core gears of SQP method, that relies on the concepts of <em>Newton's Method</em> for polynomial root approximation, <em>Langrage multipliers</em> for local constraint optimization, <em>Kuhn-Karush-Tucker</em> First Order conditions and <em>Quadratic Programming</em>. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of <em>Calculus Theory</em>.</p>
@@ -335,4 +364,4 @@ pp. 85-103.  <br>
 </div>
 
 </body>
-</html>last update: 2022-08-21 09:58:56.099543
+</html>last update: 2022-08-21 12:47:06.264283

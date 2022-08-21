@@ -29,7 +29,7 @@ $$
 In this section we will provide the necessesary definitions in order to put the _Chebyshev's approximation problem_ (CAP) in terms of a _semi-infinite programming problem_ (SIP).
 
 ### 1.1 Chebyshev approximation problem _(CAP)_
-The _Chebyshev approximation problem_ can be formulated in serveral ways, one of them is described as the following _minimax_ problem:
+The _Chebyshev approximation problem_ _(CAP)_ can be formulated in serveral ways, one of them is described as the following _minimax_ problem:
 $$
 \begin{equation}
   \min_{ x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
@@ -42,8 +42,6 @@ where
   $ d: \Omega \mapsto \mathbb{R} $ and
   $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. Here, $ d(w) $ and $ F(x, w) $ represents the function to aproximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize. Note that the approximation error given by $ |d(w) - F(x, w)| $ is not squared and computed linearly.
 
-From [KKT Theorem](#theorem-kkt)
-
 ### 1.2 Semi-infinite programming problem _(SIP)_
 In general terms, a SIP is an optimization problem described as follows:
 
@@ -53,7 +51,7 @@ $$
   \min \; f(x) \newline
   \textrm{s.t.} \; g(x, w) \leq 0, \; x \in \bb{R}, \; w \in \Omega, \; |\Omega| = \infty 
 }
-\label{eq:problemdef}
+\label{def-sip}
 \end{equation}
 $$
 
@@ -65,18 +63,18 @@ where
 
 In other words, a SIP is just a minimization problem where one of the constraints is parametrized with a variable that belongs to an infinite set, leaving virtually an infinite number of constrains (one for each possible parameter value).
 
-Also, the problem $ \eqref{eq:problemdef} $ can be written as follows:
+Also, the problem $ \eqref{def-sip} $ can be reformulated as follows:
 $$
-\begin{equation}
-\displaylines{
-  \min \quad z \newline
-  \textrm{s.a.} \quad g(x, w) &\leq 0, \newline
-  \qquad \quad f(x) &\leq z 
-}
-\label{eq:problemdef2}
-\end{equation}
+  \begin{equation}
+  \displaylines{
+    \min \;\; h(y) := y \newline
+    \textrm{s.t.} \quad g(x, w) \leq 0, \newline
+    \qquad \; f(x) \leq y
+  }
+  \label{def-sip2}
+  \end{equation}
 $$
-where $ g, f, x, w, K, \Omega $ has the same types as in $\eqref{eq:problemdef}$ and $ z \in K $. This new reformulation is equivalent since once the constraint $ g(x, w) $ is satisfied, now the least value is imposed by $ f(x) $, as in the original problem.
+where $ g, f, x, w, K, \Omega $ have the same types as in $\eqref{def-sip}$ and $ y \in K $. This new reformulation is equivalent since once the constraint $ g(x, w) $ is satisfied, now the least value is imposed by $ f(x) $, as in the original problem.
 
 ### 1.3 CAP in terms of SIP
 The following example can help to understand the _reformulation technique_ [6:307] employed at the end of this subsection that will allow to pose CAP in terms of SIP. In the following example, this reformulation removes the non-differentiable points at $ x = 0 $ and $ x = 1 $:
@@ -120,7 +118,7 @@ Now, problem $ \eqref{chebyshevproblem} $ can be expressed without loss of gener
 $$
 \displaylines{
   \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
-  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
+  \txt{s.t.} \quad \tilde{x} \in K^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
 }
 $$
 Note that the objective function and also the restriction $ g(\tilde{x}, w) $ are both linear. Finally, the previous problem can be reformulated again by splitting the absolute value restriction $ g(\tilde{x}, w) $ to get the kinks removed as in $ \eqref{capsipex1} $:
@@ -129,7 +127,7 @@ $$
 \begin{equation}
 \displaylines{
   \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
-  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R} \newline
+  \txt{s.t.} \quad \tilde{x} \in K_{n-1},\; t \in \mathbb{R} \newline
   \qquad \quad g_1(x, w) := d(w) - F(\tilde{x}, w) \leq t  \newline
   \qquad \quad g_2(x, w) := F(\tilde{x}, w) - d(w) \leq t  \newline
   \qquad \quad w \in \Omega.
@@ -144,9 +142,12 @@ This reformulation will allow to compute Chebyshev's approximations with compute
 The problem shown in $ \eqref{capsip} $, requires that both _approximation function_ $ F(x, w) $ and _target function_ $ d(w) $ must be provided as problem's input. For now, the next [definition](#approximation-function) will provide the function employed in numerical examples to approximate the example targets.
 
 **Definition 1.4.1** _(Multivariate approximation)_{: #approximation-function}     
-For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $ and $ n - 1 \in \bb{N} $, let $ F $ be the _multivariate polynomial_:
+For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the _multivariate polynomial_:
 $$ 
-F(x, w) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
+\begin{equation}
+F(x, w; d) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
+\label{eq-multivariate-approx}
+\end{equation}
 $$
 where $ x \in K_{n-1} $ is the polynomial coefficients tuple, $ w \in \Omega $, $ z: \Omega \mapsto K_{n-1} $ a vector function with $ \Omega \subseteq \mathbb{R}^{m} $, $ K_{n-1} \subseteq \mathbb{R}^{n-1} $, and each $ z_i $ the following monomial:
 $$ 
@@ -154,19 +155,39 @@ z_i = w_1^{p_1} w_2^{p_2} ... w_{m}^{p_{m}},\; \sum_{j=0}^{m} p_j \leq d.
 $$
 with $ i = 1, ..., n-1 $ and $ p_j \in \bb{N} $. $ \quad \Box $
 
+Note that the number of monomials $ k $ that will add up the polynomial is:
+$$
+k = \binom{m + d}{d}.
+$$
+Since each monomial has a coefficient and the factors involved in the dot product for $ \eqref{eq-multivariate-approx} $ must be dimensional consistent, the coefficients tuple dimension $ dim(x) = k $, that is $ n - 1 = k $.
+
 ### 1.5 Problem model specification
+Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem model (_objective function_, _decision variables_ and _constraints_) to feed the SQP method exposed in [section 2](#2-sqp-method). 
 
-Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem components (_objective function_, _decision variables_ and _restrictions_) to feed the SQP method exposed in section 2. 
-
-
-
-### 1.6 Problem instance
-After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. In order to compare this document's results to other autors, $ d(w) $ is defined as the following polynomial:
+**Definition 1.5.1** _(Objective function)_{: #objective-function}   
+Recalling the SIP minimization problem $ \eqref{capsip} $, the objective function for CAP is
 $$
-\begin{equation}
-x_1^{i_1} x_2^{i_2} = \Sigma
-\end{equation}
+f(\tilde{x}, t) = t. \quad \Box
+$$ 
+
+**Definition 1.5.2** _(Decision variables)_{: #decision-variables}   
+Recalling the SIP minimization problem $ \eqref{capsip} $, the decision variables for CAP are $ \tilde{x} $ and $ w $. $ \Box $
+
+**Definition 1.5.3** _(Constraints)_{: #constraints}   
+Recalling the SIP minimization problem $ \eqref{capsip} $, the constraints for CAP are:
 $$
+  \displaylines{
+    \tilde{x} \in K_{n-1}, \newline
+    t \in \mathbb{R}, \newline
+    w \in \Omega, \newline
+    d(w) - F(\tilde{x}, w) \leq t  \newline
+    F(\tilde{x}, w) - d(w) \leq t.
+  }
+$$
+where the target function $ d(w) $ is a given preset example (see next [subsection](#16-problem-instances)) and approximation function $ F $ is defined as in $ \eqref{eq-multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. $ \Box $
+
+### 1.6 Problem instances
+After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. 
 
 
 
