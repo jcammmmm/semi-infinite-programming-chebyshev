@@ -19,7 +19,7 @@ $$
 
 # Numerical solution of function approximation problems as semi-infinite programming problems
 
->> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.  
+>> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the software tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.  
 > KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
 
 ## Table of Contents
@@ -33,14 +33,16 @@ The _Chebyshev approximation problem_ can be formulated in serveral ways, one of
 $$
 \begin{equation}
   \min_{ x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
-  \label{eq:chebyshevproblem}
+  \label{chebyshevproblem}
 \end{equation}
 $$
 where 
   $ K_{n-1} \subseteq \mathbb{R}^{n-1} $ and
   $ \Omega \subseteq \mathbb{R}^{m} $ are non-empty and compact sets, 
   $ d: \Omega \mapsto \mathbb{R} $ and
-  $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem.
+  $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. Here, $ d(w) $ and $ F(x, w) $ represents the function to aproximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize. Note that the approximation error given by $ |d(w) - F(x, w)| $ is not squared and computed linearly.
+
+From [KKT Theorem](#theorem-kkt)
 
 ### 1.2 Semi-infinite programming problem _(SIP)_
 In general terms, a SIP is an optimization problem described as follows:
@@ -109,34 +111,64 @@ $$
 \label{capsipex3}
 \end{equation}
 $$
-is equivalent to the following problem:
+that is equivalent to the following problem:
 $$
 \min t \in \bb{R} \txt{s.t.} g_i(x) \leq t,\; i \in \bb{N}.
 $$
 
-Now, problem $ \eqref{eq:chebyshevproblem} $ can be expressed **[7:200]** in the following terms:
+Now, problem $ \eqref{chebyshevproblem} $ can be expressed without loss of generality **[7:200]** in the following terms 
+$$
+\displaylines{
+  \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
+  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
+}
+$$
+Note that the objective function and also the restriction $ g(\tilde{x}, w) $ are both linear. Finally, the previous problem can be reformulated again by splitting the absolute value restriction $ g(\tilde{x}, w) $ to get the kinks removed as in $ \eqref{capsipex1} $:
+
 $$
 \begin{equation}
 \displaylines{
   \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
-  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
+  \txt{s.t.} \quad \tilde{x} \in \mathbb{R}^{n-1},\; t \in \mathbb{R} \newline
+  \qquad \quad g_1(x, w) := d(w) - F(\tilde{x}, w) \leq t  \newline
+  \qquad \quad g_2(x, w) := F(\tilde{x}, w) - d(w) \leq t  \newline
+  \qquad \quad w \in \Omega.
 }
 \label{capsip}
 \end{equation}
 $$
 
-This reformulation will allow to employ the computer software and frameworks available to solve semi-infinite programming problems.
+This reformulation will allow to compute Chebyshev's approximations with computer software and frameworks available to solve semi-infinite programming problems. In next section the problem model components are defined.
 
-### 1.4 Problem Model
-Aiming to employ the SIP reformulation in $ \eqref{capsip} $ within the SQP framework, here 
+### 1.4 Approximation function definition
+The problem shown in $ \eqref{capsip} $, requires that both _approximation function_ $ F(x, w) $ and _target function_ $ d(w) $ must be provided as problem's input. For now, the next [definition](#approximation-function) will provide the function employed in numerical examples to approximate the example targets.
 
-### 1.5 Some Problem Instances
-After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{eq:chebyshevproblem} $. In order to compare this document's results to other autors, $ d(w) $ is defined as the following polynomial:
+**Definition 1.4.1** _(Multivariate approximation)_{: #approximation-function}     
+For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $ and $ n - 1 \in \bb{N} $, let $ F $ be the _multivariate polynomial_:
+$$ 
+F(x, w) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
+$$
+where $ x \in K_{n-1} $ is the polynomial coefficients tuple, $ w \in \Omega $, $ z: \Omega \mapsto K_{n-1} $ a vector function with $ \Omega \subseteq \mathbb{R}^{m} $, $ K_{n-1} \subseteq \mathbb{R}^{n-1} $, and each $ z_i $ the following monomial:
+$$ 
+z_i = w_1^{p_1} w_2^{p_2} ... w_{m}^{p_{m}},\; \sum_{j=0}^{m} p_j \leq d.
+$$
+with $ i = 1, ..., n-1 $ and $ p_j \in \bb{N} $. $ \quad \Box $
+
+### 1.5 Problem model specification
+
+Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem components (_objective function_, _decision variables_ and _restrictions_) to feed the SQP method exposed in section 2. 
+
+
+
+### 1.6 Problem instance
+After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. In order to compare this document's results to other autors, $ d(w) $ is defined as the following polynomial:
 $$
 \begin{equation}
 x_1^{i_1} x_2^{i_2} = \Sigma
 \end{equation}
 $$
+
+
 
 ## 2. SQP Method
 CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in _fseminf_ routine that belongs to the Optimization Package Extension. 
@@ -200,7 +232,11 @@ $$
 Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.
 
 ### 2.3 Condiciones KKT
-Knonw also as _First-Order Necessary Conditions_
+Knonw also as _First-Order Necessary Conditions_ are stated in the following theorem.
+
+**Theorem 2.3.1**{: #theorem-kkt }
+_Let $ F(x, w) $ an approximation function and let x be an arbirary number in $ \Omega $. Then there exists one element in $ F_i $ such that x < 3_
+
 
 ### 2.4 Programación Quadrática
 Es un método de aproximación local
