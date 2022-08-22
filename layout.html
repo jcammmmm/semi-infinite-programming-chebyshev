@@ -23,13 +23,13 @@
   /* Create three equal columns that floats next to each other */
   .column-content {
     float: left;
-    /* width: 50%; */
+    width: 50%;
     padding: 10px;
   }
 
   .column-side {
     float: left;
-    /* width: 25%; */
+    width: 25%;
     padding: 10px;
   }
 
@@ -75,28 +75,55 @@
   
 
   <script>
+    /***********************************************************************
+     * MATHJAX CONFIGURATION                                               *
+     ***********************************************************************/
     // http://docs.mathjax.org/en/latest/options/input/tex.html
     window.MathJax = {
+      loader: {
+        // http://docs.mathjax.org/en/latest/input/tex/extensions/tagformat.html
+        load: ['[tex]/tagformat']
+      },
       tex: {
         inlineMath: [['$', '$']],
         // https://docs.mathjax.org/en/v3.2-latest/input/tex/eqnumbers.html
-        tags: 'ams'
+        tags: 'ams',
+        packages: {'[+]': ['tagformat']},
+        tagformat: {
+          number: (n) => n.toString(),
+          tag:    (tag) => '(' + tag + ')',
+          id:     (id) => '' + id.replace(/\s/g, '_'),
+          url:    (id, base) => base + '#' + encodeURIComponent(id),
+        }
       },
     }
   </script>
   </head>
-<body>
+  <!-- style.zoom is a way to be responsive...  -->
+  <body> 
+  <!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#base-template -->
+  <div class="row">
+    <div class="column-side">
+    </div>
+    <div class="column-content">
+      {{ content }}
+    </div>
+    <div class="column-side">
+    </div>
+  </div>
 
-<!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#base-template -->
-<div class="row">
-  <div class="column-side">
-  </div>
-  <div class="column-content">
-    {{ content }}
-  </div>
-  <div class="column-side">
-  </div>
-</div>
-
-</body>
+  </body>
+  <script>
+    /***********************************************************************
+     * DISPLAY CONFIGURATION                                               *
+     ***********************************************************************/
+    var ismobile = navigator.userAgent.match(/(iPad)|(iPhone)|(iPod)|(android)|(webOS)/i);
+    let sides = document.getElementsByClassName("column-side");
+    let content = document.getElementsByClassName("column-content")[0];
+    if (!ismobile) {
+      sides[0].classList.remove("column-side");
+      sides[0].classList.remove("column-side");
+      content.classList.remove("column-content");
+    }
+  </script>
 </html>

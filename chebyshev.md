@@ -25,7 +25,8 @@ $$
 ## Table of Contents
 [TOC]
 
-## 1. Problem's definition
+1. Problem's definition
+--------------------------------------------------------------------------------------
 In this section we will provide the necessesary definitions in order to put the _Chebyshev's approximation problem_ (CAP) in terms of a _semi-infinite programming problem_ (SIP).
 
 ### 1.1 Chebyshev approximation problem _(CAP)_
@@ -146,7 +147,7 @@ For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the _multivariat
 $$ 
 \begin{equation}
 F(x, w; d) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
-\label{eq-multivariate-approx}
+\label{multivariate-approx}
 \end{equation}
 $$
 where $ x \in K_{n-1} $ is the polynomial coefficients tuple, $ w \in \Omega $, $ z: \Omega \mapsto K_{n-1} $ a vector function with $ \Omega \subseteq \mathbb{R}^{m} $, $ K_{n-1} \subseteq \mathbb{R}^{n-1} $, and each $ z_i $ the following monomial:
@@ -159,7 +160,7 @@ Note that the number of monomials $ k $ that will add up the polynomial is:
 $$
 k = \binom{m + d}{d}.
 $$
-Since each monomial has a coefficient and the factors involved in the dot product for $ \eqref{eq-multivariate-approx} $ must be dimensional consistent, the coefficients tuple dimension $ dim(x) = k $, that is $ n - 1 = k $.
+Since each monomial has a coefficient and the factors involved in the dot product for $ \eqref{multivariate-approx} $ must be dimensional consistent, the coefficients tuple dimension $ dim(x) = k $, that is $ n - 1 = k $.
 
 ### 1.5 Problem model specification
 Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem model (_objective function_, _decision variables_ and _constraints_) to feed the SQP method exposed in [section 2](#2-sqp-method). 
@@ -167,8 +168,9 @@ Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framewo
 **Definition 1.5.1** _(Objective function)_{: #objective-function}   
 Recalling the SIP minimization problem $ \eqref{capsip} $, the objective function for CAP is
 $$
-f(\tilde{x}, t) = t. \quad \Box
+f(\tilde{x}, t) = t
 $$ 
+where $ f: K_{n-1} \times \bb{R} \mapsto \bb{R}. \quad \Box $
 
 **Definition 1.5.2** _(Decision variables)_{: #decision-variables}   
 Recalling the SIP minimization problem $ \eqref{capsip} $, the decision variables for CAP are $ \tilde{x} $ and $ w $. $ \Box $
@@ -184,14 +186,46 @@ $$
     F(\tilde{x}, w) - d(w) \leq t.
   }
 $$
-where the target function $ d(w) $ is a given preset example (see next [subsection](#16-problem-instances)) and approximation function $ F $ is defined as in $ \eqref{eq-multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. $ \Box $
+where the target function $ d(w) $ is a given preset example (see next [subsection](#16-problem-instances)) and approximation function $ F $ is defined as in $ \eqref{multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. $ \Box $
 
 ### 1.6 Problem instances
-After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. 
+In order to compare the results of this work with [[4]](#ref4) and [[8]](#ref8), let $ d(w) $ be any of the following approximation targets:
+
+**Example 1.6.1**{: #example1}   
+Refer to CAP-SIP $ \eqref{capsip} $ and let $ d(w) := d_1(w) $, $ w \in \Omega $ and $ F(x, w) $ as in $ \eqref{multivariate-approx} $:
+$$
+\displaylines{
+  d_1(w) := d(w_1, w_2) = \log(w_1 + w_2)\sin(w_1) \newline
+  w \in \Omega = [0, 1] \times [1, 2.5] \newline
+  F(x, w; 2) = 
+     x_1w_1^0w_2^0
+    +x_2w_1^0w_2^1
+    +x_3w_1^0w_2^2
+    +x_4w_1^1w_2^0
+    +x_5w_1^1w_2^1
+    +x_6w_1^2w_2^0
+}
+$$
+
+**Example 1.6.2**{: #example2}    
+Refer to CAP-SIP $ \eqref{capsip} $ and let $ d(w) := d_2(w) $, $ w \in \Omega $ and $ F(x, w) $ as in $ \eqref{multivariate-approx} $:
+$$
+\displaylines{
+  d_2(w) := d(w_1, w_2) = (1 + w_1)^{w_2} \newline
+  w \in \Omega = [0, 1] \times [1, 2.5] \newline
+  F(x, w; 2) = 
+     x_1w_1^0w_2^0
+    +x_2w_1^0w_2^1
+    +x_3w_1^0w_2^2
+    +x_4w_1^1w_2^0
+    +x_5w_1^1w_2^1
+    +x_6w_1^2w_2^0
+}
+$$
 
 
-
-## 2. SQP Method
+2. SQP Method
+--------------------------------------------------------------------------------------
 CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in _fseminf_ routine that belongs to the Optimization Package Extension. 
 
 Current section's aim is to explain the core gears of SQP method, that relies on the concepts of _Newton's Method_ for polynomial root approximation, _Langrage multipliers_ for local constraint optimization, _Kuhn-Karush-Tucker_ First Order conditions and _Quadratic Programming_. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of _Calculus Theory_.
@@ -252,23 +286,27 @@ $$
 
 Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.
 
-### 2.3 Condiciones KKT
+### 2.3 KKT optimality conditions
 Knonw also as _First-Order Necessary Conditions_ are stated in the following theorem.
 
 **Theorem 2.3.1**{: #theorem-kkt }
 _Let $ F(x, w) $ an approximation function and let x be an arbirary number in $ \Omega $. Then there exists one element in $ F_i $ such that x < 3_
 
-
-### 2.4 Programación Quadrática
+### 2.4 Quadratic programming
 Es un método de aproximación local
 
-### 2.5 Método SQP
+### 2.5 Sequential Quadratic Programming method SQP
 Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...
 
-## 3. Code reading overview
+3. Examples computation
+--------------------------------------------------------------------------------------
+
+4. Source code revision
+--------------------------------------------------------------------------------------
 In this section we will examine the source code of _fseminf_ routine. Having the 
 knoledge of SQP Methods, we will point out what ideas are applied and in which 
 parts.
+After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. 
 
 ## TODO
 - Change 'continuous' by 'smooth', or belongs to C^i, because 'continuos' does not  mean 'diffrenciable'.
@@ -282,8 +320,9 @@ parts.
 **[1]** MathWorks - https://www.mathworks.com/help/optim/ug/fseminf.html    
 **[2]** Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)    
 **[3]** Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006)   
-**[4]** Reemtsen R., Discretizations Methods for the Solutions of Semi-
+**[4]**{: #ref4} Reemtsen R., Discretizations Methods for the Solutions of Semi-
 In nite Programming Problems, J. Optim. Theory Appl, 71 (1991),
 pp. 85-103.    
 **[6]** Nocedal   
 **[7]** Moradito
+**[8]**{: ref8} Carlos Gamboa

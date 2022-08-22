@@ -23,13 +23,13 @@
   /* Create three equal columns that floats next to each other */
   .column-content {
     float: left;
-    /* width: 50%; */
+    width: 50%;
     padding: 10px;
   }
 
   .column-side {
     float: left;
-    /* width: 25%; */
+    width: 25%;
     padding: 10px;
   }
 
@@ -75,24 +75,38 @@
   
 
   <script>
+    /***********************************************************************
+     * MATHJAX CONFIGURATION                                               *
+     ***********************************************************************/
     // http://docs.mathjax.org/en/latest/options/input/tex.html
     window.MathJax = {
+      loader: {
+        // http://docs.mathjax.org/en/latest/input/tex/extensions/tagformat.html
+        load: ['[tex]/tagformat']
+      },
       tex: {
         inlineMath: [['$', '$']],
         // https://docs.mathjax.org/en/v3.2-latest/input/tex/eqnumbers.html
-        tags: 'ams'
+        tags: 'ams',
+        packages: {'[+]': ['tagformat']},
+        tagformat: {
+          number: (n) => n.toString(),
+          tag:    (tag) => '(' + tag + ')',
+          id:     (id) => '' + id.replace(/\s/g, '_'),
+          url:    (id, base) => base + '#' + encodeURIComponent(id),
+        }
       },
     }
   </script>
   </head>
-<body>
-
-<!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#base-template -->
-<div class="row">
-  <div class="column-side">
-  </div>
-  <div class="column-content">
-    <p>$$
+  <!-- style.zoom is a way to be responsive...  -->
+  <body> 
+  <!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#base-template -->
+  <div class="row">
+    <div class="column-side">
+    </div>
+    <div class="column-content">
+      <p>$$
 \newcommand{\bb}[1]{\mathbb{#1}}
 \newcommand{\cc}[1]{\mathcal{#1}}
 \newcommand{\txt}[1]{\;\textrm{#1}\;}
@@ -129,12 +143,13 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <li><a href="#2-sqp-method">2. SQP Method</a><ul>
 <li><a href="#21-newtons-method">2.1 Newton's Method</a></li>
 <li><a href="#22-lagrange-multipliers">2.2 Lagrange Multipliers</a></li>
-<li><a href="#23-condiciones-kkt">2.3 Condiciones KKT</a></li>
-<li><a href="#24-programacion-quadratica">2.4 Programación Quadrática</a></li>
-<li><a href="#25-metodo-sqp">2.5 Método SQP</a></li>
+<li><a href="#23-kkt-optimality-conditions">2.3 KKT optimality conditions</a></li>
+<li><a href="#24-quadratic-programming">2.4 Quadratic programming</a></li>
+<li><a href="#25-sequential-quadratic-programming-method-sqp">2.5 Sequential Quadratic Programming method SQP</a></li>
 </ul>
 </li>
-<li><a href="#3-code-reading-overview">3. Code reading overview</a></li>
+<li><a href="#3-examples-computation">3. Examples computation</a></li>
+<li><a href="#4-source-code-revision">4. Source code revision</a></li>
 <li><a href="#todo">TODO</a></li>
 <li><a href="#referencias">Referencias</a></li>
 </ul>
@@ -248,7 +263,7 @@ For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the <em>multivar
 $$ 
 \begin{equation}
 F(x, w; d) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
-\label{eq-multivariate-approx}
+\label{multivariate-approx}
 \end{equation}
 $$
 where $ x \in K_{n-1} $ is the polynomial coefficients tuple, $ w \in \Omega $, $ z: \Omega \mapsto K_{n-1} $ a vector function with $ \Omega \subseteq \mathbb{R}^{m} $, $ K_{n-1} \subseteq \mathbb{R}^{n-1} $, and each $ z_i $ the following monomial:
@@ -260,14 +275,15 @@ with $ i = 1, ..., n-1 $ and $ p_j \in \bb{N} $. $ \quad \Box $</p>
 $$
 k = \binom{m + d}{d}.
 $$
-Since each monomial has a coefficient and the factors involved in the dot product for $ \eqref{eq-multivariate-approx} $ must be dimensional consistent, the coefficients tuple dimension $ dim(x) = k $, that is $ n - 1 = k $.</p>
+Since each monomial has a coefficient and the factors involved in the dot product for $ \eqref{multivariate-approx} $ must be dimensional consistent, the coefficients tuple dimension $ dim(x) = k $, that is $ n - 1 = k $.</p>
 <h3 id="15-problem-model-specification">1.5 Problem model specification</h3>
 <p>Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem model (<em>objective function</em>, <em>decision variables</em> and <em>constraints</em>) to feed the SQP method exposed in <a href="#2-sqp-method">section 2</a>. </p>
 <p><strong>Definition 1.5.1</strong> <em id="objective-function">(Objective function)</em> <br>
 Recalling the SIP minimization problem $ \eqref{capsip} $, the objective function for CAP is
 $$
-f(\tilde{x}, t) = t. \quad \Box
-$$ </p>
+f(\tilde{x}, t) = t
+$$ 
+where $ f: K_{n-1} \times \bb{R} \mapsto \bb{R}. \quad \Box $</p>
 <p><strong>Definition 1.5.2</strong> <em id="decision-variables">(Decision variables)</em> <br>
 Recalling the SIP minimization problem $ \eqref{capsip} $, the decision variables for CAP are $ \tilde{x} $ and $ w $. $ \Box $</p>
 <p><strong>Definition 1.5.3</strong> <em id="constraints">(Constraints)</em> <br>
@@ -281,9 +297,39 @@ $$
     F(\tilde{x}, w) - d(w) \leq t.
   }
 $$
-where the target function $ d(w) $ is a given preset example (see next <a href="#16-problem-instances">subsection</a>) and approximation function $ F $ is defined as in $ \eqref{eq-multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. $ \Box $</p>
+where the target function $ d(w) $ is a given preset example (see next <a href="#16-problem-instances">subsection</a>) and approximation function $ F $ is defined as in $ \eqref{multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. $ \Box $</p>
 <h3 id="16-problem-instances">1.6 Problem instances</h3>
-<p>After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. </p>
+<p>In order to compare the results of this work with <a href="#ref4">[4]</a> and <a href="#ref8">[8]</a>, let $ d(w) $ be any of the following approximation targets:</p>
+<p><strong id="example1">Example 1.6.1</strong> <br>
+Refer to CAP-SIP $ \eqref{capsip} $ and let $ d(w) := d_1(w) $, $ w \in \Omega $ and $ F(x, w) $ as in $ \eqref{multivariate-approx} $:
+$$
+\displaylines{
+  d_1(w) := d(w_1, w_2) = \log(w_1 + w_2)\sin(w_1) \newline
+  w \in \Omega = [0, 1] \times [1, 2.5] \newline
+  F(x, w; 2) = 
+     x_1w_1^0w_2^0
+    +x_2w_1^0w_2^1
+    +x_3w_1^0w_2^2
+    +x_4w_1^1w_2^0
+    +x_5w_1^1w_2^1
+    +x_6w_1^2w_2^0
+}
+$$</p>
+<p><strong id="example2">Example 1.6.2</strong>  <br>
+Refer to CAP-SIP $ \eqref{capsip} $ and let $ d(w) := d_2(w) $, $ w \in \Omega $ and $ F(x, w) $ as in $ \eqref{multivariate-approx} $:
+$$
+\displaylines{
+  d_2(w) := d(w_1, w_2) = (1 + w_1)^{w_2} \newline
+  w \in \Omega = [0, 1] \times [1, 2.5] \newline
+  F(x, w; 2) = 
+     x_1w_1^0w_2^0
+    +x_2w_1^0w_2^1
+    +x_3w_1^0w_2^2
+    +x_4w_1^1w_2^0
+    +x_5w_1^1w_2^1
+    +x_6w_1^2w_2^0
+}
+$$</p>
 <h2 id="2-sqp-method">2. SQP Method</h2>
 <p>CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in <em>fseminf</em> routine that belongs to the Optimization Package Extension. </p>
 <p>Current section's aim is to explain the core gears of SQP method, that relies on the concepts of <em>Newton's Method</em> for polynomial root approximation, <em>Langrage multipliers</em> for local constraint optimization, <em>Kuhn-Karush-Tucker</em> First Order conditions and <em>Quadratic Programming</em>. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of <em>Calculus Theory</em>.</p>
@@ -331,18 +377,20 @@ $$
 \nabla f(x^\star) = \sum_{i \in \cc{I}} \lambda_{i} \nabla g_i(x^\star)
 $$</p>
 <p>Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.</p>
-<h3 id="23-condiciones-kkt">2.3 Condiciones KKT</h3>
+<h3 id="23-kkt-optimality-conditions">2.3 KKT optimality conditions</h3>
 <p>Knonw also as <em>First-Order Necessary Conditions</em> are stated in the following theorem.</p>
 <p><strong id="theorem-kkt">Theorem 2.3.1</strong>
 <em>Let $ F(x, w) $ an approximation function and let x be an arbirary number in $ \Omega $. Then there exists one element in $ F_i $ such that x &lt; 3</em></p>
-<h3 id="24-programacion-quadratica">2.4 Programación Quadrática</h3>
+<h3 id="24-quadratic-programming">2.4 Quadratic programming</h3>
 <p>Es un método de aproximación local</p>
-<h3 id="25-metodo-sqp">2.5 Método SQP</h3>
+<h3 id="25-sequential-quadratic-programming-method-sqp">2.5 Sequential Quadratic Programming method SQP</h3>
 <p>Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...</p>
-<h2 id="3-code-reading-overview">3. Code reading overview</h2>
+<h2 id="3-examples-computation">3. Examples computation</h2>
+<h2 id="4-source-code-revision">4. Source code revision</h2>
 <p>In this section we will examine the source code of <em>fseminf</em> routine. Having the 
 knoledge of SQP Methods, we will point out what ideas are applied and in which 
-parts.</p>
+parts.
+After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. </p>
 <h2 id="todo">TODO</h2>
 <ul>
 <li>Change 'continuous' by 'smooth', or belongs to C^i, because 'continuos' does not  mean 'diffrenciable'.</li>
@@ -353,15 +401,29 @@ parts.</p>
 <p><strong>[1]</strong> MathWorks - https://www.mathworks.com/help/optim/ug/fseminf.html  <br>
 <strong>[2]</strong> Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)  <br>
 <strong>[3]</strong> Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006) <br>
-<strong>[4]</strong> Reemtsen R., Discretizations Methods for the Solutions of Semi-
+<strong id="ref4">[4]</strong> Reemtsen R., Discretizations Methods for the Solutions of Semi-
 In nite Programming Problems, J. Optim. Theory Appl, 71 (1991),
 pp. 85-103.  <br>
 <strong>[6]</strong> Nocedal <br>
-<strong>[7]</strong> Moradito</p>
+<strong>[7]</strong> Moradito
+<strong ref8>[8]</strong> Carlos Gamboa</p>
+    </div>
+    <div class="column-side">
+    </div>
   </div>
-  <div class="column-side">
-  </div>
-</div>
 
-</body>
-</html>last update: 2022-08-21 12:47:06.264283
+  </body>
+  <script>
+    /***********************************************************************
+     * DISPLAY CONFIGURATION                                               *
+     ***********************************************************************/
+    var ismobile = navigator.userAgent.match(/(iPad)|(iPhone)|(iPod)|(android)|(webOS)/i);
+    let sides = document.getElementsByClassName("column-side");
+    let content = document.getElementsByClassName("column-content")[0];
+    if (!ismobile) {
+      sides[0].classList.remove("column-side");
+      sides[0].classList.remove("column-side");
+      content.classList.remove("column-content");
+    }
+  </script>
+</html>last update: 2022-08-22 13:02:03.119574
