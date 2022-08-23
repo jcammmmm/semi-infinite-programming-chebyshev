@@ -22,3 +22,5 @@ El problema _minimax_ en $ \eqref{eq:chebyshevproblem} $ puede verse de la sigui
 
 [//]
 for $ p_j \in \bb{N} $ and $ d \in \bb{N} \cup \lbrace 0 \rbrace $. $$\tag*{$\Box$}$$
+
+Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.

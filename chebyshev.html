@@ -109,7 +109,7 @@
       <p>$$
 \newcommand{\bb}[1]{\mathbb{#1}}
 \newcommand{\cc}[1]{\mathcal{#1}}
-\newcommand{\txt}[1]{\;\textrm{#1}\;}
+\newcommand{\txt}[1]{\;\;\textrm{#1}\;\;}
 \newcommand{\problemUnconstr}{\min f(x)\; \txt{s.t.}\; x \in \bb{R}^n}
 \newcommand{\problemMinimizeSingle}[2]{\min #1\; \txt{s.t.}\; #2 }
 \newcommand{\problemMinimizeMulti}[2]{
@@ -119,7 +119,7 @@
   }
 }
 $$</p>
-<h1 id="numerical-solution-of-function-approximation-problems-as-semi-infinite-programming-problems">Numerical solution of function approximation problems as semi-infinite programming problems</h1>
+<h1 id="numerical-solution-of-function-approximations-with-semi-infinite-programming">Numerical solution of function approximations with semi-infinite programming</h1>
 <blockquote>
 <blockquote>
 <p>ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the software tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.<br>
@@ -129,7 +129,7 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <h2 id="table-of-contents">Table of Contents</h2>
 <div class="toc">
 <ul>
-<li><a href="#numerical-solution-of-function-approximation-problems-as-semi-infinite-programming-problems">Numerical solution of function approximation problems as semi-infinite programming problems</a><ul>
+<li><a href="#numerical-solution-of-function-approximations-with-semi-infinite-programming">Numerical solution of function approximations with semi-infinite programming</a><ul>
 <li><a href="#table-of-contents">Table of Contents</a></li>
 <li><a href="#1-problems-definition">1. Problem's definition</a><ul>
 <li><a href="#11-chebyshev-approximation-problem-cap">1.1 Chebyshev approximation problem (CAP)</a></li>
@@ -257,8 +257,8 @@ Note that the objective function and also the restriction $ g(\tilde{x}, w) $ ar
 $$</p>
 <p>This reformulation will allow to compute Chebyshev's approximations with computer software and frameworks available to solve semi-infinite programming problems. In next section the problem model components are defined.</p>
 <h3 id="14-approximation-function-definition">1.4 Approximation function definition</h3>
-<p>The problem shown in $ \eqref{capsip} $, requires that both <em>approximation function</em> $ F(x, w) $ and <em>target function</em> $ d(w) $ must be provided as problem's input. For now, the next <a href="#approximation-function">definition</a> will provide the function employed in numerical examples to approximate the example targets.</p>
-<p><strong>Definition 1.4.1</strong> <em id="approximation-function">(Multivariate approximation)</em>   <br>
+<p>The problem shown in $ \eqref{capsip} $, requires that both <em>approximation function</em> $ F(x, w) $ and <em>target function</em> $ d(w) $ must be provided as problem's input. From now, the next <a href="#def-approximation-function">definition</a> will provide the function employed in numerical examples to approximate the example targets.</p>
+<p><strong>Definition 1.4.1</strong> <em id="def-approximation-function">(Multivariate approximation)</em>   <br>
 For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the <em>multivariate polynomial</em>:
 $$ 
 \begin{equation}
@@ -332,17 +332,17 @@ $$
 $$</p>
 <h2 id="2-sqp-method">2. SQP Method</h2>
 <p>CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in <em>fseminf</em> routine that belongs to the Optimization Package Extension. </p>
-<p>Current section's aim is to explain the core gears of SQP method, that relies on the concepts of <em>Newton's Method</em> for polynomial root approximation, <em>Langrage multipliers</em> for local constraint optimization, <em>Kuhn-Karush-Tucker</em> First Order conditions and <em>Quadratic Programming</em>. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of <em>Calculus Theory</em>.</p>
+<p>Current section's aim is to explain the core gears of SQP method, that relies on the concepts of <em>Newton's Method</em> for polynomial root approximation, <em>Langrage multipliers</em> for local constraint optimization, <em>Kuhn-Karush-Tucker</em> optimality conditions and <em>Quadratic Programming</em>. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of <em>Calculus Theory</em>.</p>
 <h3 id="21-newtons-method">2.1 Newton's Method</h3>
 <p>The Newton's method is a numerical method that approximates the roots of a smooth function (i.e. $ x $ where $ f(x) $ vanishes). Since this is a necessary condition for a maximizer point, this method is employed intensively within the optimization theory.</p>
-<p>Having the nonlinear uncostrained minimization problem $ \problemUnconstr $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. This means that we have a system of $ n $ non-linear equations that must be equal to $\min f(x)$ s.t. $g(x) = c$.</p>
+<p>Having the nonlinear uncostrained minimization problem $ \problemUnconstr $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. That means we have a system of $ n $ non-linear equations that must be equal to $ 0 $ in order to minimize $ f(x) $.</p>
 <p>The idea of the method is to employ a linear approximation for the point that should be the function's root. This is written as usual:
 $$
 \begin{equation}
 g(x + h) = g(x) + g'(x)h + R(x, h)
 \end{equation}
 $$</p>
-<p>Where $ h $ is the extent from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
+<p>Where $ h $ is a step vector from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
 $$
 \begin{equation}
 \displaylines{
@@ -353,32 +353,52 @@ $$
 \end{equation}
 $$</p>
 <p>Since this result is an approximation to the true $ x $ that vanishes $ g(x) $, the value $ x^N = x + h $ can be employed as starting point for the next iteration. The method finishes when a precision threshold is met.</p>
-<p>As pointed out by several authors <strong>[3]</strong> this is one of the most important techniques in numerical optimization because of its fast rate of convergence. In fact, some optimization books (<strong>[2]</strong>, <strong>[3]</strong>) at least one chapter is devoted to develop better convergence and to lease undesired behaviors of this technique.</p>
+<p>As pointed out by several authors <strong>[3]</strong> this is one of the most important techniques in numerical optimization because of its fast rate of convergence. In fact, some optimization books (<strong>[2]</strong>, <strong>[3]</strong>) devote at least one chapter to develop better convergence rates and to lease techinique's undesired behaviors.</p>
 <p>As stated before, and for the following subsections, here we will only provide an overview of the core method. Further details can be found in the addressed references.</p>
 <h3 id="22-lagrange-multipliers">2.2 Lagrange Multipliers</h3>
-<p>This method appears naturally when the unconstrained problem $ \min f(x) $ $ \txt{s.t.} $ $ x \in \bb{R} $ becomes constrained by equalities, i.e: $ \min f(x) $ $ \txt{s.t.} $ $ g(x) = c $, $ c \in \bb{R} $. </p>
-<p>At its core the method imposes a necessary condition to any critical point $ x^\star $ as follows. Let $ f: K^n \mapsto \bb{R} $ and $ g: K^n \mapsto \bb{R} $ be $ C^1 $ real functions, $ K^n \subseteq \bb{R}^n $, $ x^\star \in K $, $ g(x^\star) = c $, $ S = \lbrace x \in \bb{R} \;|\; g(x) = c \rbrace $ (i.e. the level set) and $ \nabla g(x^\star) ≠ 0 $. If $ f|S $ ($ f $ restricted to $ S $) has an optimal value at $ x^\star $, then there is a real number $ \lambda $ such that
+<p>This is one of the fundamental techniques of constrained optimization. Here the technique is reviewed incrementally, starting from one equality constraint, then with several equality constraints and finally with unequality constraints.</p>
+<p>This method appears naturally when the unconstrained problem $ \min_{x \in \bb{R}} f(x) $ becomes constrained by one equality: 
 $$
-\begin{equation}
-  \nabla f(x^\star) = \lambda \nabla g(x^\star).
+\displaylines {
+  \min_{x \in \bb{R}^n} f(x) \txt{s.t.} g(x) = 0
+}
+$$ 
+where $ f $ and $ g $ are real-valued smooth functions on a subset of $ \bb{R}^n $. At its core the method imposes a necessary condition to any critical point $ x^\star $, as stated in the following theorem. </p>
+<p><strong>Theorem 2.2.1</strong> <em id="thrm-lagrange-mult-uni">(Lagrange Multipliers)</em>  <br>
+Let $ f: K^n \mapsto \bb{R} $ and $ g: K^n \mapsto \bb{R} $ be $ C^1 $ real functions, $ K^n \subseteq \bb{R}^n $, $ x^\star \in K $, $ g(x^\star) = c $, $ S = \lbrace x \in \bb{R} \;|\; g(x) = c \rbrace $ (i.e. the level set) and $ \nabla g(x^\star) ≠ 0 $. If $ f|S $ ($ f $ restricted to $ S $) has an optimal value at $ x^\star $, then there is a real number $ \lambda $ such that
+$$
+  \nabla f(x^\star) = \lambda \nabla g(x^\star). \quad \Box
   \label{lagrangeoptcriteria}
-\end{equation}
 $$</p>
-<p>Seemingly, if there are several constraints, for the minimization problem:
+<p>Seemingly, if there are several equality constraints, for the problem:
+$$
+  \min_{x \in \bb{R}^n} f(x) \txt{s.t} g_i(x) = 0, \; i \in \cc{E}
+$$
+where $ f $ and $ g $ are real-valued smooth functions on a subset of $ \bb{R}^n $ and  $ \cc{E} $ is a finite set indices, the previous theorem can be extended as follows.</p>
+<p><strong>Theorem 2.2.2</strong> <em id="thrm-lagrange-mult">(Lagrange Multipliers)</em>  <br>
+If $ f $ has a maximum or minimum at $ x^\star $ on $ S = \lbrace x \in \bb{R} \;|\; g_i(x) = 0, i \in \cc{E} \rbrace $ and the vectors $ \nabla g_i $ for $ i \in \cc{E} $ are linearly independent, then must exist constants $ \lambda_i $  such that:
+$$
+\nabla f(x^\star) = \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x^\star). \quad \Box
+$$</p>
+<p>Naturally, Lagrange multipliers can be employed to solve optimization problems that also involves unequality constraints, such as this general formulation:
+$$
+\min_{x \in \bb{R}}f(x) \txt{s.t.}
+\left\lbrace\displaylines{
+  \quad g_i(x) =    0, \; i \in \cc{E} \quad \newline
+  \quad g_i(x) \leq 0, \; i \in \cc{I} \quad
+}\right\rbrace
+$$
+where $ f $ and $ g_i $ are real-valued smooth functions on a subset of $ \bb{R}^n $ for $ i \in \cc{E} \cup \cc{I}$, and $ \cc{E}$ and $ \cc{I} $ are finite set of indices for equality and inequality constraints respectively.</p>
+<!-- TODO: Write down the strategy to optimize regions using lagrange multipliers -->
+
+<p>The equality criteria stated in previous theorem is referred as <em>Lagrangian function</em>:
 $$
 \begin{equation}
-  \problemMinimizeMulti
-  {f(x),\; x \in \bb{R}^n}
-  {g_i(x) = c_i, \; c_i \in \bb{R}^n, \; i \in \cc{I} \subset \bb{N}}
+  \cc{L}(x, \lambda) = f(x) - \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x)
 \end{equation}
-$$
-the optimal criteria $ \eqref{lagrangeoptcriteria} $ becomes:
-$$
-\nabla f(x^\star) = \sum_{i \in \cc{I}} \lambda_{i} \nabla g_i(x^\star)
 $$</p>
-<p>Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.</p>
 <h3 id="23-kkt-optimality-conditions">2.3 KKT optimality conditions</h3>
-<p>Knonw also as <em>First-Order Necessary Conditions</em> are stated in the following theorem.</p>
+<p>Known as <em>First-Order Necessary Conditions</em>, are conditions concerned to the gradients of a local solution $ x^\star $.</p>
 <p><strong id="theorem-kkt">Theorem 2.3.1</strong>
 <em>Let $ F(x, w) $ an approximation function and let x be an arbirary number in $ \Omega $. Then there exists one element in $ F_i $ such that x &lt; 3</em></p>
 <h3 id="24-quadratic-programming">2.4 Quadratic programming</h3>
@@ -417,13 +437,16 @@ pp. 85-103.  <br>
     /***********************************************************************
      * DISPLAY CONFIGURATION                                               *
      ***********************************************************************/
-    var ismobile = navigator.userAgent.match(/(iPad)|(iPhone)|(iPod)|(android)|(webOS)/i);
+    // var ismobile = navigator.userAgent.match(/(iPad)|(iPhone)|(iPod)|(android)|(webOS)/i);
     let sides = document.getElementsByClassName("column-side");
     let content = document.getElementsByClassName("column-content")[0];
-    if (!ismobile) {
+
+    var w = window.innerWidth;
+    var h = window.innerHeight; 
+    if (w/h < 1) {
       sides[0].classList.remove("column-side");
       sides[0].classList.remove("column-side");
       content.classList.remove("column-content");
     }
   </script>
-</html>last update: 2022-08-22 13:02:03.119574
+</html>last update: 2022-08-23 14:25:30.186940

@@ -6,7 +6,7 @@
 $$
 \newcommand{\bb}[1]{\mathbb{#1}}
 \newcommand{\cc}[1]{\mathcal{#1}}
-\newcommand{\txt}[1]{\;\textrm{#1}\;}
+\newcommand{\txt}[1]{\;\;\textrm{#1}\;\;}
 \newcommand{\problemUnconstr}{\min f(x)\; \txt{s.t.}\; x \in \bb{R}^n}
 \newcommand{\problemMinimizeSingle}[2]{\min #1\; \txt{s.t.}\; #2 }
 \newcommand{\problemMinimizeMulti}[2]{
@@ -17,7 +17,7 @@ $$
 }
 $$
 
-# Numerical solution of function approximation problems as semi-infinite programming problems
+# Numerical solution of function approximations with semi-infinite programming
 
 >> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the software tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.  
 > KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
@@ -140,9 +140,9 @@ $$
 This reformulation will allow to compute Chebyshev's approximations with computer software and frameworks available to solve semi-infinite programming problems. In next section the problem model components are defined.
 
 ### 1.4 Approximation function definition
-The problem shown in $ \eqref{capsip} $, requires that both _approximation function_ $ F(x, w) $ and _target function_ $ d(w) $ must be provided as problem's input. For now, the next [definition](#approximation-function) will provide the function employed in numerical examples to approximate the example targets.
+The problem shown in $ \eqref{capsip} $, requires that both _approximation function_ $ F(x, w) $ and _target function_ $ d(w) $ must be provided as problem's input. From now, the next [definition](#def-approximation-function) will provide the function employed in numerical examples to approximate the example targets.
 
-**Definition 1.4.1** _(Multivariate approximation)_{: #approximation-function}     
+**Definition 1.4.1** _(Multivariate approximation)_{: #def-approximation-function}     
 For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the _multivariate polynomial_:
 $$ 
 \begin{equation}
@@ -228,13 +228,13 @@ $$
 --------------------------------------------------------------------------------------
 CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in _fseminf_ routine that belongs to the Optimization Package Extension. 
 
-Current section's aim is to explain the core gears of SQP method, that relies on the concepts of _Newton's Method_ for polynomial root approximation, _Langrage multipliers_ for local constraint optimization, _Kuhn-Karush-Tucker_ First Order conditions and _Quadratic Programming_. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of _Calculus Theory_.
+Current section's aim is to explain the core gears of SQP method, that relies on the concepts of _Newton's Method_ for polynomial root approximation, _Langrage multipliers_ for local constraint optimization, _Kuhn-Karush-Tucker_ optimality conditions and _Quadratic Programming_. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of _Calculus Theory_.
 
 ### 2.1 Newton's Method
 
 The Newton's method is a numerical method that approximates the roots of a smooth function (i.e. $ x $ where $ f(x) $ vanishes). Since this is a necessary condition for a maximizer point, this method is employed intensively within the optimization theory.
 
-Having the nonlinear uncostrained minimization problem $ \problemUnconstr $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. This means that we have a system of $ n $ non-linear equations that must be equal to $\min f(x)$ s.t. $g(x) = c$.
+Having the nonlinear uncostrained minimization problem $ \problemUnconstr $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. That means we have a system of $ n $ non-linear equations that must be equal to $ 0 $ in order to minimize $ f(x) $.
 
 The idea of the method is to employ a linear approximation for the point that should be the function's root. This is written as usual:
 $$
@@ -243,7 +243,7 @@ g(x + h) = g(x) + g'(x)h + R(x, h)
 \end{equation}
 $$
 
-Where $ h $ is the extent from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
+Where $ h $ is a step vector from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
 $$
 \begin{equation}
 \displaylines{
@@ -256,38 +256,61 @@ $$
 
 Since this result is an approximation to the true $ x $ that vanishes $ g(x) $, the value $ x^N = x + h $ can be employed as starting point for the next iteration. The method finishes when a precision threshold is met.
 
-As pointed out by several authors **[3]** this is one of the most important techniques in numerical optimization because of its fast rate of convergence. In fact, some optimization books (**[2]**, **[3]**) at least one chapter is devoted to develop better convergence and to lease undesired behaviors of this technique.
+As pointed out by several authors **[3]** this is one of the most important techniques in numerical optimization because of its fast rate of convergence. In fact, some optimization books (**[2]**, **[3]**) devote at least one chapter to develop better convergence rates and to lease techinique's undesired behaviors.
 
 As stated before, and for the following subsections, here we will only provide an overview of the core method. Further details can be found in the addressed references.
 
 ### 2.2 Lagrange Multipliers
-This method appears naturally when the unconstrained problem $ \min f(x) $ $ \txt{s.t.} $ $ x \in \bb{R} $ becomes constrained by equalities, i.e: $ \min f(x) $ $ \txt{s.t.} $ $ g(x) = c $, $ c \in \bb{R} $. 
+This is one of the fundamental techniques of constrained optimization. Here the technique is reviewed incrementally, starting from one equality constraint, then with several equality constraints and finally with unequality constraints.
 
-At its core the method imposes a necessary condition to any critical point $ x^\star $ as follows. Let $ f: K^n \mapsto \bb{R} $ and $ g: K^n \mapsto \bb{R} $ be $ C^1 $ real functions, $ K^n \subseteq \bb{R}^n $, $ x^\star \in K $, $ g(x^\star) = c $, $ S = \lbrace x \in \bb{R} \;|\; g(x) = c \rbrace $ (i.e. the level set) and $ \nabla g(x^\star) ≠ 0 $. If $ f|S $ ($ f $ restricted to $ S $) has an optimal value at $ x^\star $, then there is a real number $ \lambda $ such that
+This method appears naturally when the unconstrained problem $ \min_{x \in \bb{R}} f(x) $ becomes constrained by one equality: 
 $$
-\begin{equation}
-  \nabla f(x^\star) = \lambda \nabla g(x^\star).
+\displaylines {
+  \min_{x \in \bb{R}^n} f(x) \txt{s.t.} g(x) = 0
+}
+$$ 
+where $ f $ and $ g $ are real-valued smooth functions on a subset of $ \bb{R}^n $. At its core the method imposes a necessary condition to any critical point $ x^\star $, as stated in the following theorem. 
+
+**Theorem 2.2.1** _(Lagrange Multipliers)_{: #thrm-lagrange-mult-uni}    
+Let $ f: K^n \mapsto \bb{R} $ and $ g: K^n \mapsto \bb{R} $ be $ C^1 $ real functions, $ K^n \subseteq \bb{R}^n $, $ x^\star \in K $, $ g(x^\star) = c $, $ S = \lbrace x \in \bb{R} \;|\; g(x) = c \rbrace $ (i.e. the level set) and $ \nabla g(x^\star) ≠ 0 $. If $ f|S $ ($ f $ restricted to $ S $) has an optimal value at $ x^\star $, then there is a real number $ \lambda $ such that
+$$
+  \nabla f(x^\star) = \lambda \nabla g(x^\star). \quad \Box
   \label{lagrangeoptcriteria}
-\end{equation}
 $$
 
-Seemingly, if there are several constraints, for the minimization problem:
+Seemingly, if there are several equality constraints, for the problem:
+$$
+  \min_{x \in \bb{R}^n} f(x) \txt{s.t} g_i(x) = 0, \; i \in \cc{E}
+$$
+where $ f $ and $ g $ are real-valued smooth functions on a subset of $ \bb{R}^n $ and  $ \cc{E} $ is a finite set indices, the previous theorem can be extended as follows.
+
+**Theorem 2.2.2** _(Lagrange Multipliers)_{: #thrm-lagrange-mult}    
+If $ f $ has a maximum or minimum at $ x^\star $ on $ S = \lbrace x \in \bb{R} \;|\; g_i(x) = 0, i \in \cc{E} \rbrace $ and the vectors $ \nabla g_i $ for $ i \in \cc{E} $ are linearly independent, then must exist constants $ \lambda_i $  such that:
+$$
+\nabla f(x^\star) = \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x^\star). \quad \Box
+$$
+
+Naturally, Lagrange multipliers can be employed to solve optimization problems that also involves unequality constraints, such as this general formulation:
+$$
+\min_{x \in \bb{R}}f(x) \txt{s.t.}
+\left\lbrace\displaylines{
+  \quad g_i(x) =    0, \; i \in \cc{E} \quad \newline
+  \quad g_i(x) \leq 0, \; i \in \cc{I} \quad
+}\right\rbrace
+$$
+where $ f $ and $ g_i $ are real-valued smooth functions on a subset of $ \bb{R}^n $ for $ i \in \cc{E} \cup \cc{I}$, and $ \cc{E}$ and $ \cc{I} $ are finite set of indices for equality and inequality constraints respectively.
+
+<!-- TODO: Write down the strategy to optimize regions using lagrange multipliers -->
+
+The equality criteria stated in previous theorem is referred as _Lagrangian function_:
 $$
 \begin{equation}
-  \problemMinimizeMulti
-  {f(x),\; x \in \bb{R}^n}
-  {g_i(x) = c_i, \; c_i \in \bb{R}^n, \; i \in \cc{I} \subset \bb{N}}
+  \cc{L}(x, \lambda) = f(x) - \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x)
 \end{equation}
 $$
-the optimal criteria $ \eqref{lagrangeoptcriteria} $ becomes:
-$$
-\nabla f(x^\star) = \sum_{i \in \cc{I}} \lambda_{i} \nabla g_i(x^\star)
-$$
-
-Note that at this point Lagrange Multipliers are only used when your constrains are equalities. But if you make the equality constant a parameter that belongs to an continuous real interval you can get a SIP. For instance, for problem $ \min f(x, y)\; \textrm{s.t.}\; x^2 + y^2 = 3 $ you can get a constraint area by making $ x^2 + y^2 = c $ where $ c \in [0, 3] $.
 
 ### 2.3 KKT optimality conditions
-Knonw also as _First-Order Necessary Conditions_ are stated in the following theorem.
+Known as _First-Order Necessary Conditions_, are conditions concerned to the gradients of a local solution $ x^\star $.
 
 **Theorem 2.3.1**{: #theorem-kkt }
 _Let $ F(x, w) $ an approximation function and let x be an arbirary number in $ \Omega $. Then there exists one element in $ F_i $ such that x < 3_

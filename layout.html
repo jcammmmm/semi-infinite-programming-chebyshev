@@ -117,10 +117,13 @@
     /***********************************************************************
      * DISPLAY CONFIGURATION                                               *
      ***********************************************************************/
-    var ismobile = navigator.userAgent.match(/(iPad)|(iPhone)|(iPod)|(android)|(webOS)/i);
+    // var ismobile = navigator.userAgent.match(/(iPad)|(iPhone)|(iPod)|(android)|(webOS)/i);
     let sides = document.getElementsByClassName("column-side");
     let content = document.getElementsByClassName("column-content")[0];
-    if (!ismobile) {
+
+    var w = window.innerWidth;
+    var h = window.innerHeight; 
+    if (w/h < 1) {
       sides[0].classList.remove("column-side");
       sides[0].classList.remove("column-side");
       content.classList.remove("column-content");
