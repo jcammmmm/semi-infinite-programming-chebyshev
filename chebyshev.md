@@ -186,7 +186,7 @@ $$
     F(\tilde{x}, w) - d(w) \leq t.
   }
 $$
-where the target function $ d(w) $ is a given preset example (see next [subsection](#16-problem-instances)) and approximation function $ F $ is defined as in $ \eqref{multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. $ \Box $
+where the target function $ d(w) $ is a given preset example (see next [subsection](#16-problem-instances)) and approximation function $ F $ is defined as in $ \eqref{multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. Also, note that the _semi-infinite_ parameter is $ w $; the approximation function must be near to the target function for each posible value of $ \Omega $.  $ \Box $
 
 ### 1.6 Problem instances
 In order to compare the results of this work with [[4]](#ref4) and [[8]](#ref8), let $ d(w) $ be any of the following approximation targets:
@@ -335,6 +335,7 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 - Change 'continuous' by 'smooth', or belongs to C^i, because 'continuos' does not  mean 'diffrenciable'.
 - Expand the idea of necessary and sufficient conditions, to expand the Lagrange multipliers method to region constraints.
 - Add the examples to the end of the first section.
+- Review merit function at fsemiinf.m 321
 
 
 
