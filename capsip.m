@@ -8,7 +8,7 @@ w2 = 1:0.1:2.5;
 d = log(W1 + W2).*sin(W1);
 % surf(W1, W2, d); 
 
-x0 = [0, 0, 0, 0, 0, 0, 0];     % initial guess
+x0 = zeros(1, 11);     % initial guess
 ntheta = 2;                     % number of semi-infinite constraints
 A = [];                         % equality constraints
 b = [];                         % equality constraints 
@@ -36,6 +36,21 @@ function apprxval = F1(x, W1, W2)
         x(6).*W1.^2;
 end
 
+function apprxval = F2(x, W1, W2) 
+    % F(x, w; 2): approximation function
+    apprxval =              ...
+        x(1) +              ...
+        x(2).*W2    +       ...
+        x(3).*(W2.^2) +       ...
+        x(4).*(W2.^3) +       ...
+        x(5).*W1    +       ...
+        x(6).*(W1.^2) +       ...
+        x(7).*(W1.^3) +       ...
+        x(8).*W1.*W2 +      ...
+        x(9).*(W1.^2).*W2 +    ...
+        x(10).*W1.*(W2.^2) ; 
+end
+
 % SEMI-INFINITE CONSTRAINTS DEFINITION
 % Function signature interface is provided by fseminf authors.
 % X := (x, t)
@@ -54,7 +69,7 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
     d = log(W1 + W2).*sin(W1);
 
     % F(x, w)
-    f = F1(x(1:6), W1, W2);
+    f = F2(x(1:10), W1, W2);
 
     % t
     [cols, rows] = size(W1);
