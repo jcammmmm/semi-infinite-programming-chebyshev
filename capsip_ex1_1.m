@@ -11,21 +11,56 @@ hold on;
 
 x = [0.0000    1.0000   -1.1706    0.3176   -1.8111    0.9539    0.1471    2.1799   -0.4525   -0.4352         0]
 x = [0.3309    1.0689   -0.5097    0.0733    2.4961   -1.8813    0.0366   -2.0208    1.5337    0.8357         0]
-
-F = F2(x, W1, W2);
+x = [0.3651    1.0000   -0.4667    0.0650    2.5107   -1.9049    0.0536   -2.0308    1.5325    0.8389    0.0366]
+x = [0.0506    1.5327    0.8398    0.0626   -1.9007   -2.0342   -0.4544    2.5117    0.9804    0.3749    0.0366]
+x = [0.3651    1.0000   -0.4667    0.0650    2.5107   -1.9049    0.0536   -2.0308    1.5325    0.8389    0.0366] % F2
+x = [0.3651    1.0000   -0.4667    0.0650    2.5107   -1.9049    0.0536   -2.0308    1.5325    0.8389    0.0366] % F2
+x = [0.0506    1.5327    0.8398    0.0626   -1.9007   -2.0342   -0.4544    2.5117    0.9804    0.3749    0.0366] % F
+x = [0.0034    1.5359    0.8516    0.0295   -1.8358   -2.0786   -0.2850    2.5236    0.7099    0.5087    0.0369]
+F = Fn(x(1:10), W1, W2);
 mesh(W1, W2, F);
 
-function apprxval = F2(x, W1, W2) 
-    % F(x, w; 2): approximation function
-    apprxval =              ...
-        x(1) +              ...
-        x(2).*W2    +       ...
-        x(3).*(W2.^2) +       ...
-        x(4).*(W2.^3) +       ...
-        x(5).*W1    +       ...
-        x(6).*(W1.^2) +       ...
-        x(7).*(W1.^3) +       ...
-        x(8).*W1.*W2 +      ...
-        x(9).*(W1.^2).*W2 +    ...
-        x(10).*W1.*(W2.^2) ; 
+function apprxval = Fn(x, W1, W2)
+    disp('ok')
+    pows = getpows(3);
+    [c, r] = size(W1);
+    apprxval = zeros(c, r);
+    for i = 1:length(x)
+        p1 = pows(1, i);
+        p2 = pows(2, i);
+
+        if p1 ~= 0 && p2 ~= 0
+            apprxval = apprxval + x(i).*(W1.^pows(1, i)).*(W2.^pows(2, i));
+        elseif p1 == 0
+            apprxval = apprxval + x(i).*(W2.^pows(2, i));
+        elseif p2 == 0
+            apprxval = apprxval + x(i).*(W1.^pows(1, i));
+        else 
+            apprxval = apprxval + x(i);
+        end
+    end
+
 end
+
+function pows = getpows(d)
+    if (d == 0)
+        pows = zeros(2, 1);
+        return;
+    end
+    pows = [zeros(2, d + 1), getpows(d - 1)];
+
+    half = ceil(d/2);
+    for i = 0:(half-1)
+        % add (x^a)*(x^b)
+        pows(1, i + 1) = d - i;
+        pows(2, i + 1) = i;
+        % add (x^b)*(x^a)
+        pows(1, d - i + 1) = i;
+        pows(2, d - i + 1) = d - i;
+    end
+    if rem(d, 2) == 0
+        pows(1, half + 1) = half; 
+        pows(2, half + 1) = half;
+    end
+end
+

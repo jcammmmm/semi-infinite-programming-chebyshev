@@ -1,15 +1,29 @@
+d = @(W1, W2) log(W1 + W2).*sin(W1);
+capsipf(d, 3);
+
+function x = capsipf(targetfun, degree)
+% Approximates a function through a polynomial Chebyshev approximation
+% computed as a semi-infinite programming problem.
+% INPUT:
+%   targetfun    := function to approximate
+%   polynomfun   := approximation function  
+%   domain       := array that contains the square interval over
+% RETURNS: 
+%   An array containing the polynomial coefficients.
+% The domain's dimension should math the target function's dimension.
+
+pows = getpows(degree);
+domdim = length(pows);
+
 % SIP OBJECTIVE FUNCTION
-objfun = @(x) x(7);
-w1 = 0:0.1:1;
-w2 = 1:0.1:2.5;
+%   f: R^n+1 -> R; where the n+1 element is 't'. 
+objfun = @(x) x(domdim + 1);
+
+w1 = 0:0.01:1;
+w2 = 1:0.01:2.5;
 [W1, W2] = meshgrid(w1, w2);
 
-% d(w): target function
-d = log(W1 + W2).*sin(W1);
-
-% surf(W1, W2, d); 
-
-x0 = zeros(1, 11);    % initial guess, the last element is 't'
+x0 = zeros(1, domdim + 1);      % initial guess, the last element is 't'
 ntheta = 2;                     % number of semi-infinite constraints
 A = [];                         % equality constraints
 b = [];                         % equality constraints 
@@ -26,32 +40,6 @@ disp(x);
 % disp(output);
 % disp(lambda);
 
-function apprxval = F1(x, W1, W2) 
-    % F(x, w; 2): approximation function
-    apprxval =          ...
-        x(1) +          ...
-        x(2).*W2 +      ...
-        x(3).*W2.^2 +   ...
-        x(4).*W1 +      ...
-        x(5).*W1.*W2 +  ...
-        x(6).*W1.^2;
-end
-
-function apprxval = F2(x, W1, W2) 
-    % F(x, w; 2): approximation function
-    apprxval =              ...
-        x(1) +              ...
-        x(2).*W2    +       ...
-        x(3).*(W2.^2) +       ...
-        x(4).*(W2.^3) +       ...
-        x(5).*W1    +       ...
-        x(6).*(W1.^2) +       ...
-        x(7).*(W1.^3) +       ...
-        x(8).*W1.*W2 +      ...
-        x(9).*(W1.^2).*W2 +    ...
-        x(10).*W1.*(W2.^2) ; 
-end
-
 % SEMI-INFINITE CONSTRAINTS DEFINITION
 % Function signature interface is provided by fseminf authors.
 % X := (x, t)
@@ -61,23 +49,62 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
     c = [];              
     ceq = [];
 
-    % semi-infinite constraint parameter
-    w1 = 0:0.005:1;
-    w2 = 1:0.005:2.5;
-    [W1, W2] = meshgrid(w1, w2);
-
     % d(w): target function
-    d = log(W1 + W2).*sin(W1);
-    d = (1 + W1).^W2;
+    d = targetfun(W1, W2);
 
     % F(x, w)
-    f = F2(x(1:10), W1, W2);
+    f = F(x(1:domdim), W1, W2);
+    
     % t
     [cols, rows] = size(W1);
-    t = zeros(cols, rows) + x(7);
+    t = zeros(cols, rows) + x(domdim + 1);
 
     % g_1(x, w)
     K1 = d - f - t;
     % g_2(x, w)
     K2 = f - d - t;
+end
+
+function apprxval = F(x, W1, W2)
+    [c, r] = size(W1);
+    apprxval = zeros(c, r);
+    for i = 1:length(x)
+        p1 = pows(1, i);
+        p2 = pows(2, i);
+
+        if p1 ~= 0 && p2 ~= 0
+            apprxval = apprxval + x(i).*(W1.^pows(1, i)).*(W2.^pows(2, i));
+        elseif p1 == 0
+            apprxval = apprxval + x(i).*(W2.^pows(2, i));
+        elseif p2 == 0
+            apprxval = apprxval + x(i).*(W1.^pows(1, i));
+        else 
+            apprxval = apprxval + x(i);
+        end
+    end
+
+end
+
+function pows = getpows(d)
+    if (d == 0)
+        pows = zeros(2, 1);
+        return;
+    end
+    pows = [zeros(2, d + 1), getpows(d - 1)];
+
+    half = ceil(d/2);
+    for i = 0:(half-1)
+        % add (x^a)*(x^b)
+        pows(1, i + 1) = d - i;
+        pows(2, i + 1) = i;
+        % add (x^b)*(x^a)
+        pows(1, d - i + 1) = i;
+        pows(2, d - i + 1) = d - i;
+    end
+    if rem(d, 2) == 0
+        pows(1, half + 1) = half; 
+        pows(2, half + 1) = half;
+    end
+end
+
 end
