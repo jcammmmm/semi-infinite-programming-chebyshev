@@ -1,5 +1,24 @@
 d = @(W1, W2) log(W1 + W2).*sin(W1);
-capsipf(d, 3);
+d = @(W1, W2) (1 + W1).^W2;
+d = @(W1, W2) W1.*exp(-W1.^2 - W2.^2);
+d = @(W1, W2) sin(W1.^2).*cos(W2.^2);
+
+x = capsipf(d, 5);
+capsip_test(d, 5, x);
+
+function capsip_test(targetfun, degree, coeffs)
+    w1 = 0:0.1:1;
+    w2 = 1:0.1:2.5;
+    [W1, W2] = meshgrid(w1, w2);
+
+    d = targetfun(W1, W2);
+    surf(W1, W2, d); 
+    hold on;
+    
+    pows = getpows(degree);
+    f = F(coeffs(1:length(pows)), W1, W2, pows);
+    mesh(W1, W2, f);
+end
 
 function x = capsipf(targetfun, degree)
 % Approximates a function through a polynomial Chebyshev approximation
@@ -23,14 +42,14 @@ w1 = 0:0.01:1;
 w2 = 1:0.01:2.5;
 [W1, W2] = meshgrid(w1, w2);
 
-x0 = zeros(1, domdim + 1);      % initial guess, the last element is 't'
-ntheta = 2;                     % number of semi-infinite constraints
-A = [];                         % equality constraints
-b = [];                         % equality constraints 
-Aeq = [];                       % inequality constraints
-beq = [];                       % inequality constraints
-lb = [0, 1];                    % 0 <= w1 and 0 <= w2
-ub = [1, 2.5];                  % w1 <= 1 and w2 <= 2.5
+x0 = zeros(1, domdim + 1);          % initial guess, the last element is 't'
+ntheta = 2;                         % number of semi-infinite constraints
+A = [];                             % equality constraints
+b = [];                             % equality constraints 
+Aeq = [];                           % inequality constraints
+beq = [];                           % inequality constraints
+lb = zeros(1, domdim + 1) - Inf;    % x = (x1, x2, x3, x4, x5, x6, x7, t) in R^n+1
+ub = zeros(1, domdim + 1) + Inf;    % x = (x1, x2, x3, x4, x5, x6, x7, t) in R^n+1
 [x, fval, exitflag, output, lambda] = fseminf(objfun, x0, ntheta, @seminfcon, A, b, Aeq, beq, lb, ub);
 disp(x);
 
@@ -53,7 +72,7 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
     d = targetfun(W1, W2);
 
     % F(x, w)
-    f = F(x(1:domdim), W1, W2);
+    f = F(x(1:domdim), W1, W2, pows);
     
     % t
     [cols, rows] = size(W1);
@@ -64,8 +83,9 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
     % g_2(x, w)
     K2 = f - d - t;
 end
+end
 
-function apprxval = F(x, W1, W2)
+function apprxval = F(x, W1, W2, pows)
     [c, r] = size(W1);
     apprxval = zeros(c, r);
     for i = 1:length(x)
@@ -105,6 +125,4 @@ function pows = getpows(d)
         pows(1, half + 1) = half; 
         pows(2, half + 1) = half;
     end
-end
-
 end

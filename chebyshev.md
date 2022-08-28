@@ -321,8 +321,12 @@ Es un método de aproximación local
 ### 2.5 Sequential Quadratic Programming method SQP
 Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...
 
-3. Examples computation
+3. Numerical Experiments
 --------------------------------------------------------------------------------------
+At degree 5, the approximation is near enough that causes _z-fighting_ within the plot.
+This let show how the approximation is good, because this phenomenon occurs when two
+or more primitives are near to the render camera, which means that are almost at the
+same distance. This was for $ d = (1 + W1).^W2 $.
 
 4. Source code revision
 --------------------------------------------------------------------------------------
