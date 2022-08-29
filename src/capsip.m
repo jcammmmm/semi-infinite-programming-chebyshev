@@ -9,7 +9,7 @@ function x = capsip(targetfun, degree, domain)
 %   An array containing the polynomial coefficients.
 % The domain's dimension should math the target function's dimension.
 
-pows = pnomialexps(degree);
+pows = pnomialexps(2, degree);
 coeffdim = length(pows);
 domdim = length(domain);
 
