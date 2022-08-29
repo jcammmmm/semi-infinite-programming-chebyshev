@@ -68,7 +68,14 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
     % g_2(x, w)
     K2 = f - d - t;
 
-    % K1 = reshape(K1, 11, 121);
-    % K2 = reshape(K2, 11, 121);
+    if domdim > 2
+      % reshape must be done if dimension is greater than 2 since
+      % findmax2 in the following execution stack main.m -> capsip.m -> 
+      % fseminf.m -> semicon.m -> findmax.m >>> findmax2 requeres a 
+      % 2-dimensional matrix.
+      [cols, rows, depth] = size(K1);
+      K1 = reshape(K1, cols, rows*depth);
+      K2 = reshape(K2, cols, rows*depth);
+    end
 end
 end

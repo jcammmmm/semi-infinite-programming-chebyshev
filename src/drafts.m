@@ -1,18 +1,10 @@
-clear all
-f = @f2;
-r = f(5);
-r
 
-[x1, x2] = ndgrid(0:0.1:1);
-x = {x1, x2};
-for i = x
-    disp(i{1}(8, 9))
-end
-
-function y = f1(x) 
-    y = x*x;
-end
-
-function y = f2(x)
-    y = x*x*x;
+d = @(W1, W2, level) cos(W1.*(1 + W2).^level);
+for j = 0:30:180
+    for i = 0:0.1:1
+        [W1, W2] = ndgrid(0:0.01:1);
+        mesh(W1, W2, d(W1, W2, i));
+        view([45 + j, 45]);
+        pause(0.1);
+    end
 end
