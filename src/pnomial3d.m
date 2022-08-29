@@ -4,8 +4,8 @@ function apprxval = pnomial3d(x, W, pows)
 %   W := cell array of 2d-dimensional meshes
 %   pows := n-1 x 2 matrix of 3-dimensional polynomial powers
 
-    [c, r] = size(W{1});
-    apprxval = zeros(c, r);
+    [c, r, d] = size(W{1});
+    apprxval = zeros(c, r, d);
     for i = 1:length(x)
         p1 = pows(i, 1);
         p2 = pows(i, 2);

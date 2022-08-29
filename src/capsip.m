@@ -9,22 +9,25 @@ function x = capsip(targetfun, degree, domain)
 %   An array containing the polynomial coefficients.
 % The domain's dimension should math the target function's dimension.
 
-pows = pnomialexps(2, degree);
-coeffdim = length(pows);
 domdim = length(domain);
 
 % SIP OBJECTIVE FUNCTION
 %   f: R^n+1 -> R; where the n+1 element is 't'. 
-objfun = @(x) x(coeffdim + 1);
 
 if domdim == 2
     [W1, W2] = meshgrid(domain{1}, domain{2});
     W = {W1, W2};
+    pows = pnomialexps(2, degree);
     pnomial = @pnomial2d;
 elseif domdim == 3
     [W1, W2, W3] = meshgrid(domain{1}, domain{2}, domain{3});
+    W = {W1, W2, W3};
+    pows = pnomialexps(3, degree);
     pnomial = @pnomial3d;
 end
+
+coeffdim = length(pows);
+objfun = @(x) x(coeffdim + 1);
 
 x0 = zeros(1, coeffdim + 1);        % initial guess, the last element is 't'
 ntheta = 2;                         % number of semi-infinite constraints
@@ -54,16 +57,18 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
     % d(w): target function
     d = targetfun(W);
 
-    % F(x, w)
+    % F(x, w): approximation function
     f = pnomial(x(1:coeffdim), W, pows);
     
     % t
-    [cols, rows] = size(W{1});
-    t = zeros(cols, rows) + x(coeffdim + 1);
+    t = x(coeffdim + 1);
 
     % g_1(x, w)
     K1 = d - f - t;
     % g_2(x, w)
     K2 = f - d - t;
+
+    % K1 = reshape(K1, 11, 121);
+    % K2 = reshape(K2, 11, 121);
 end
 end

@@ -27,8 +27,8 @@ function pows = pnomialexps(dim, deg)
             [1 0 0; 0 1 0; 0 0 1], ...
             [2 0 0; 1 1 0; 1 0 1; 0 1 1; 0 0 2], ...
             [3 0 0; 2 1 0; 2 0 1; 1 2 0; 1 1 1; 1 0 2; 2 0 1; 0 2 1; 1 0 2; 0 1 2; 0 0 3] ...
-        }
-        pows = []
+        };
+        pows = [];
         for i = 1:deg + 1
             pows = [pows; dpow{i}];
         end   
