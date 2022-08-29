@@ -5,7 +5,8 @@ function capsiptest3d(targetfunlvl, degree, coeffs, domain)
     [c, r, d] = size(W1);
     approxlvl = @(W1, W2, lvl) pnomial3d(coeffs(1:length(pows)), {W1, W2, zeros(c, r, d) + lvl}, pows);
 
-    for j = 0:30:180
+    % each time the plot is rotated 30 degrees around z axis
+    for j = 0:30:180 
         for i = domain{3}
             cla
             % plot level sets target
@@ -15,7 +16,6 @@ function capsiptest3d(targetfunlvl, degree, coeffs, domain)
             mesh(W1, W2, approxlvl(W1, W2, i));
             view([45 + j, 45]);
             pause(0.2);
-    
         end
 
     end
