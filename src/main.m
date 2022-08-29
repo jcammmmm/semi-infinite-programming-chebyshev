@@ -1,8 +1,11 @@
 example = 7;
 
+% set figure's window position and size
+set(gcf, 'Position',  [100, 100, 800, 350])
+
 if example < 5
-    w1 = 0:0.1:1;
-    w2 = 1:0.1:2.5;
+    w1 = 0:0.05:1;
+    w2 = 1:0.05:2.5;
     switch example
 
         case 1
@@ -15,8 +18,8 @@ if example < 5
             d = @(W) sin(W{1}.^2).*cos(W{2}.^2);
 
     end
-    coeffs = capsip(d, 3, {w1, w2});
-    capsiptest2d(d, 3, coeffs, {w1, w2});
+    coeffs = capsip(d, 7, {w1, w2});
+    capsiptest2d(d, 7, coeffs, {w1, w2});
 else 
     w1 = 0:0.05:1;
     w2 = 0:0.05:1;

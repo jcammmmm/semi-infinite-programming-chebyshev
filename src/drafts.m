@@ -1,10 +1,8 @@
+tiledlayout(2,1)
+ax1 = nexttile;
+surf(peaks)
+colormap(ax1,spring)
 
-d = @(W1, W2, level) cos(W1.*(1 + W2).^level);
-for j = 0:30:180
-    for i = 0:0.1:1
-        [W1, W2] = ndgrid(0:0.01:1);
-        mesh(W1, W2, d(W1, W2, i));
-        view([45 + j, 45]);
-        pause(0.1);
-    end
-end
+ax2 = nexttile; 
+surf(peaks)
+colormap(ax2,winter)
