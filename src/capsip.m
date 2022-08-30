@@ -10,9 +10,7 @@ function x = capsip(targetfun, degree, domain)
 % The domain's dimension should math the target function's dimension.
 
 domdim = length(domain);
-
-% SIP OBJECTIVE FUNCTION
-%   f: R^n+1 -> R; where the n+1 element is 't'. 
+iters = 0;
 
 if domdim == 2
     [W1, W2] = meshgrid(domain{1}, domain{2});
@@ -26,24 +24,29 @@ elseif domdim == 3
     pnomial = @pnomial3d;
 end
 
+% SIP OBJECTIVE FUNCTION
+%   f: R^n+1 -> R; where the n+1 element is 't'. 
 coeffdim = length(pows);
 objfun = @(x) x(coeffdim + 1);
 
-x0 = zeros(1, coeffdim + 1);        % initial guess, the last element is 't'
-ntheta = 2;                         % number of semi-infinite constraints
-A = [];                             % equality constraints
-b = [];                             % equality constraints 
-Aeq = [];                           % inequality constraints
-beq = [];                           % inequality constraints
-lb = zeros(1, coeffdim + 1) - Inf;  % x = (x1, x2, x3, x4, x5, x6, x7, t) in R^n+1
-ub = zeros(1, coeffdim + 1) + Inf;  % x = (x1, x2, x3, x4, x5, x6, x7, t) in R^n+1
-[x, fval, exitflag, output, lambda] = fseminf(objfun, x0, ntheta, @seminfcon, A, b, Aeq, beq, lb, ub);
-disp(x);
+x0 = zeros(1, coeffdim + 1);            % initial guess, the last element is 't'. size(x0) = numberofvariables
+ntheta = 2;                             % number of semi-infinite constraints
+A = [];                                 % equality constraints
+b = [];                                 % equality constraints 
+Aeq = [];                               % inequality constraints
+beq = [];                               % inequality constraints
+lb = zeros(1, coeffdim + 1) - Inf;      % x = (x1, x2, x3, x4, x5, x6, x7, t) in R^n+1
+ub = zeros(1, coeffdim + 1) + Inf;      % x = (x1, x2, x3, x4, x5, x6, x7, t) in R^n+1
 
-% disp(fval);
-% disp(exitflag);
-% disp(output);
-% disp(lambda);
+options = optimoptions(@fseminf);
+% options.MaxIterations = 100*(coeffdim + 1);
+% options.MaxFunctionEvaluations = 2000*(coeffdim  + 1);  % defaults to 100*numerofvariables
+
+[x, fval, exitflag, output, lambda] = fseminf(objfun, x0, ntheta, @seminfcon, A, b, Aeq, beq, lb, ub, options);
+
+
+disp(x);
+disp(output.iterations);
 
 % SEMI-INFINITE CONSTRAINTS DEFINITION
 % Function signature interface is provided by fseminf authors.
@@ -77,5 +80,7 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
       K1 = reshape(K1, cols, rows*depth);
       K2 = reshape(K2, cols, rows*depth);
     end
+
+    iters = iters + 1;
 end
 end
