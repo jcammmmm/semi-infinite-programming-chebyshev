@@ -10,7 +10,6 @@ function x = capsip(targetfun, degree, domain)
 % The domain's dimension should math the target function's dimension.
 
 domdim = length(domain);
-iters = 0;
 
 if domdim == 2
     [W1, W2] = meshgrid(domain{1}, domain{2});
@@ -80,7 +79,5 @@ function [c, ceq, K1, K2, S] = seminfcon(x, S)
       K1 = reshape(K1, cols, rows*depth);
       K2 = reshape(K2, cols, rows*depth);
     end
-
-    iters = iters + 1;
 end
 end

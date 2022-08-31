@@ -1,4 +1,4 @@
-example = 3;
+example = 9;
 
 % set figure's window position and size
 set(gcf, 'Position',  [100, 100, 800, 350])
@@ -70,7 +70,7 @@ else
             w3 = 0:0.05:1;
             d    = @(W) abs(log((W{1}.*W{2} + 1)./(W{1} + 0.5))).*(W{2}.^((W{3} + 1)/2));
             dlvl = @(W1, W2, lvl) abs(log((W1.*W2 + 1)./(W1 + 0.5))).*(W2.^((lvl + 1)/2));
-            
+
         % :: our proposal
         case 10 % w1 + w2 + w3
             w1 = 0:0.05:1;
@@ -80,7 +80,7 @@ else
             dlvl = @(W1, W2, lvl) W1 + W2 + lvl;
 
     end
-    degree = 2
+    degree = 2;
     coeffs = capsip(d, degree, {w1, w2, w3});
     capsiptest3d(dlvl, degree, coeffs, {w1, w2, w3});
 end

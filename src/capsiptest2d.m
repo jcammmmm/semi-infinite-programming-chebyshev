@@ -13,7 +13,7 @@ function capsiptest2d(targetfun, degree, coeffs, domain)
     colorbar;
 
     graph2 = nexttile;
-    for j = 0:1:105
+    for j = 0:1:315
         cla
         view (j, 45)
         % The surface is the target function

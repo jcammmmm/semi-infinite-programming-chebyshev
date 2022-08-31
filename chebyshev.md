@@ -20,7 +20,7 @@ $$
 }
 $$
 
-# Numerical solution of function approximations with semi-infinite programming
+# Numerical computation of function approximations with semi-infinite programming
 
 >> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the software tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies heavily in Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The following section describes the SQP techniques and core concepts that makes the method. In the final section, the sample problems shown are computed.  
 > KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
@@ -206,34 +206,54 @@ $$
 where the target function $ d(w) $ is a given preset example (see next [subsection](#16-problem-instances)) and approximation function $ F $ is defined as in $ \eqref{multivariate-approx} $: $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $. Also, note that the _semi-infinite_ parameter is $ w $; the approximation function must be near to the target function for each posible value of $ \Omega $.  $ \Box $
 
 ### 1.6 Problem instances
-In order to compare the results of this work with [[4]](#ref4) and [[8]](#ref8), refer to CAP-SIP $ \eqref{capsip} $ and let $ F(x, w) $ as in $ \eqref{multivariate-approx} $, $ k $ as in $ \eqref{monomnum} $ and let $ d(w) $ with $ w \in \Omega \subseteq \bb{R} $ be any of the following approximation targets:
+In order to compare the results of this work with [[4]](#ref4) and [[8]](#ref8), refer to CAP-SIP $ \eqref{capsip} $ and let $ F(x, w) $ as in $ \eqref{multivariate-approx} $, $ k $ as in $ \eqref{monomnum} $ and let $ d(w) $ with $ w \in \Omega \subseteq \bb{R}^m $ be any of the following approximation targets:
 
-**Example 1.6.1**{: #example1}   
+**1.6.1. Example 1**{: #example1}   
 $$
 \displaylines{
   d(w) := \log(w_1 + w_2)\sin(w_1) \newline
   w \in \Omega = [0, 1] \times [1, 2.5] \newline
   F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2}; \newline
-  i = {2, ..., 6.}
+  i \in \lbrace 2, 3, 4, 5, 6 \rbrace
 } 
 $$
 
-**Example 1.6.2**{: #example2}    
+**1.6.2 Example 2**{: #example2}    
 $$
 \displaylines{
   d(w) := (1 + w_1)^{w_2} \qquad \qquad \newline
   w \in \Omega = [0, 1] \times [1, 2.5] \newline
   F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2}; \newline
-  i = {2, ..., 6.}
+  i \in \lbrace 2, 3, 4, 5, 6 \rbrace
 }
 $$
 
-**Example 1.6.3**{: #example3}   
+**1.6.3 Example 3**{: #example3}   
 $$
 \displaylines{
-  d(w) := e^{(w_1^2 + w_1w_2)} \qquad \newline
+  d(w) := e^{(w_1^2 + w_1w_2)} \newline
   w \in \Omega = [-1, 1] \times [-1, 1] \newline
   F(x, w; 9) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2}; \newline
+}
+$$
+
+**1.6.4 Example 4**{: #example4}  
+$$
+\displaylines{
+  d(w) = \cos(w_3 (1 + w_1))^{w_2} \newline
+  w \in \Omega = [0, 1] \times [1, 2] \times [0, 1] \newline
+  F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2} w_3^{p3} \newline
+  i \in \lbrace 2, 3, 4, 5 \rbrace
+}
+$$
+
+**1.6.5 Example 5**{: #example5}   
+$$
+\displaylines{
+  d(w) = \Big| log\frac{w_1 w_2 + 1}{x_1 + 0.5} \Big| x_2^{\frac{x_3 + 1}{2}} \newline
+  w \in \Omega = [0, 1] \times [0, 1] \times [0, 1] \newline
+  F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2} w_3^{p3} \newline
+  i \in \lbrace 2, 3, 4, 5 \rbrace
 }
 $$
 
@@ -336,11 +356,11 @@ Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un
 
 3. Numerical Experiments
 --------------------------------------------------------------------------------------
-The numerical experiments were performed to 2-dimensional and 3-dimensional functions. For both problems a two tile figure is provided. The left figure is an error plot that shows the difference between the CAP-SIP approximation and the target function. 
+The numerical experiments were performed to approximate 2-dimensional and 3-dimensional functions. For each example a two tile figure is provided. The left figure is an error plot that shows the difference between the CAP-SIP approximation and the target function. 
 
-The 2-dimensional plot is rotated around the _z-axis_ to appreciate the approximation from every side. In the other hand, as 3-dimensional plots belongs to 4th dimension, the 3-dimensional levels are plotted and this is the actual animation of those pictures.
+The 2-dimensional plot is rotated around the _z-axis_ to appreciate the approximation from every side. On the other hand, as 3-dimensional plots belongs to 4th dimension, the 3-dimensional levels are plotted and this is the actual animation of those pictures.
 
-**Example 1.6.1** _(results)_    
+### 3.1 Example 1 _(results)_    
 The results for this [example](#example1) where $ d(w_1, w_2) = \log(w_1 + w_2)\sin(w_1) $ over $ [0, 1] $ $ \times $ $ [1, 2.5] $ with a second degree polynomial are shown in the following picture:
 
 ![gif image](results/ex1.gif "2d degree approx.")
@@ -355,18 +375,18 @@ Table1 summarizes the findings. $ n $, $ d $, $ e $ stands for _number of iterat
 
 d     |SQP n | DM n | EA n  | SQP e   | DM e    | EA e    |
 ------|------|------|-------|---------|---------|---------|
-2     | 22   | 4    | -     | 2.81e-2 | 2.80e-2 | -       |
-3     | 35   | 6    | -     | 3.50e-5 | 3.47e-3 | -       |
-4     | 161  | 4    | -     | 9.00e-4 | 6.96e-4 | -       |
+2     | 22   |  4   | -     | 2.81e-2 | 2.80e-2 | -       |
+3     | 35   |  6   | -     | 3.50e-5 | 3.47e-3 | -       |
+4     | 161  |  4   | -     | 9.00e-4 | 6.96e-4 | -       |
 5     | 91   | 11   | -     | 2.00e-3 | 1.62e-4 | -       |
-6     | 92   | 8    | -     | 2.50e-3 | 3.96e-5 | -       |
+6     | 92   |  8   | -     | 2.50e-3 | 3.96e-5 | -       |
 7     | 93   | 13   | 95    | 1.50e-3 | 1.00e-5 | 2.80e-1 |
 
 >> **Table1**. The results of the method exposed in this document compared to other authors.
 
 Now, some clarifications about the meaning of $ e $. The technique employed to compute the results is based in the _minimax_ problem $ \eqref{chebyshevproblem} $. Then the maximization part of the problem was refomulated into the artificial variable $ t $ in $ \eqref{capsip} $, being now $ t $ the objective function. The value of $ e $ is the minimal value that $ f(x, t) = t $ holds after the minimization process, this means that $ e $ is the lower difference among the maximum differences that were obtained while perfoming the optimization process. This value can be seen in the brightests zones within the 2-dimensional error plots shown in the left side of each figure. Moreover, the value that appears in the table is the maxiumum value that the colorbar displays.
 
-**Example 1.6.2** _(results)_   
+### 3.2 Example 2 _(results)_   
 For this problem instance the function $ d(w_1, w_2) = (1 + w_1)^{w_2} $ is approximated within the interval $ [0, 1] \times [1, 2.5] $. The **Figure2** shows the approximation achieved with a 2nd-degree polynomial in $ 27 $ iterations and with a minimum error $ e = 0.1776 $: 
 
 ![example2](./results/ex2.gif)
@@ -377,7 +397,7 @@ As with the previous problem, next figure shows the approximation with a 7th-deg
 ![example2a](./results/ex2a.gif)
 > **Figure4:** 7th-degree polynomial approximation for $ d(w_1, w_2) = (1 + w_1)^{w_2} $
 
-The following table puts sided-to-side the results obtained by other authors:
+The following table puts side-to-side the results computed by other authors:
 
 d     |SQP n | DM n | EA n  | SQP e   | DM e    | EA e    |
 ------|------|------|-------|---------|---------|---------|
@@ -393,19 +413,53 @@ Starting from 2nd-degree polynomial approximations in some examples, the polynom
 ![z-fighting](./results/z-fight.sm.png)
 > **Figure5:** Z-fighting on 5th-degree polynomial approximation. The white grid is the approximation. The color surface is the target function. 
 
-**Example 1.6.3** _(results)_    
+### 3.3 Example 3 _(results)_    
 For this approximation example a 9th-degree polynomial was chosen. The results compared to [[4]](#ref4) are discussed after following figure:
 
 ![example3](./results/ex3.gif)
-> **Figure6:** A 9th-degree polynomial approximation for $ e^{(w_1^2 + w_1w_2)} $.
+> **Figure6:** A 9th-degree polynomial approximation for $ d(w) = e^{(w_1^2 + w_1w_2)} $.
 
-This approximation was achieved after $ 96 $ iterations and has a maximum error of $ \sctnot{8.0}{-4} $, on the other hand [[4]](#ref4) has an error of $ \sctnot{5.83}{-2} $ in $ 12 $ iterations. The aim of this example is to show how good can be this method to approximate a surface with pronounced peaks with a high degree polynomial. Remark, the more black the error plot is, more uniform and smooth the approximation is.
+This approximation was achieved after $ 96 $ iterations and has a maximum error of $ \sctnot{8.0}{-4} $, on the other hand [[4]](#ref4) has an error of $ \sctnot{7.35}{-1} $ in $ 10 $ iterations. The aim of this example is to show how good can be this method to approximate a surface with pronounced peaks with a high degree polynomial. Remark, the more black the error plot is, more uniform and smooth the approximation is.
 
+### 3.4 Example 4 _(results)_   
+In this example a 3-dimensional function is approximated. Certainly, the computation time is increased due to more dense matrices, but the number of iterations remains similar to the 2-dimensional examples.
+
+Since 3-dimensional functions plots belongs to 4th dimension, here the 3-dimensional _level_ or _contour_ plots are shown. The third axis i.e. $ w_3 $ will give de level for the level plots. In particular, for this example the level values will be in $ [0, 1] $. 
+
+As in previous examples, the surface-grid plot is rotated to look the approximation form several angles. Since, the 4-dimensinal plot is composed of several 3-dimensional plots, each time that the figure rotates, the level plotted is incremented by $ 0.1 $. At the same time, the error plot on the left is updated each time the level changes.
+
+![example4](./results/ex8.gif)
+> **Figure7:** 5th-degree approximation of $ d(w) = \cos(w_3 (1 + w_1))^{w_2} $.
+
+This approximation took $ 90 $ iterations and had a minimum error of $ \sctnot{6.50}{-3} $ while the approximation made in [[4]](ref#4) had a minimum error of $ \sctnot{7.08}{-4} $ in only $ 11 $ iterations. The following table shows the number of iterations $ n $ required to approximate $ d(w) $ with a polynomial of degree $ d $ and its minimum error $ e $:
 
 d     |SQP n | DM n | SQP e   | DM e    |
 ------|------|------|---------|---------|
-2     | 95   | 12   | 4.70e-3 | 5.83e-2 |
+2     | 76   |  4   | 5.12e-0 | 1.52e-1 |
+3     | 56   |  7   | 2.05e-0 | 3.11e-2 |
+4     | 85   | 12   | 1.95e-1 | 4.87e-3 |
+5     | 90   | 11   | 6.50e-3 | 7.08e-4 |
 
+> **Table3:** Results comparative with [[4]](#ref4).
+
+### 3.5 Example 5 _(Results)_
+For this target, the author in [[4]](#ref4) stated that their method had stability ussues, and for that reason it was only approximated up to the 3rd-degree polynomial.
+The following figure shows our approximation for the 5th-degree polynomial:
+
+![example9](./results/ex9.gif)
+
+Finally, this table shows the computation results compared to author in [[4]](#ref4):
+
+d     |SQP n | DM n | SQP e   | DM e    |
+------|------|------|---------|---------|
+2     | 60   |  5   | 1.08e-1 | 8.89e-2 |
+3     | 79   | 12   | 9.71e-2 | 4.81-e2 |
+4     | 89   | -    | 7.49e-2 | -       |
+5     | 87   | -    | 7.81e-2 | -       |
+
+> **Table4:** Results comparative.
+
+Only left to review and compare the iteration complexity in each one of the methods _SQP_ used in the current work, _DM_ used in [[4]](#ref4) and _AE_ in [[8]](#ref8). This comparation will be the object of a future article.
 
 4. Source code revision
 --------------------------------------------------------------------------------------

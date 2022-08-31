@@ -19,19 +19,16 @@ function pows = pnomialexps(dim, deg)
             pows = [pows; dpow];
         end
     elseif dim == 3
-        if deg > 3
-            error('3-dimensional nth-degree polynomials with n > 3 are not supported yet.') ;
-        end
-        dpow = {         ...
-            [0 0 0], ...
-            [1 0 0; 0 1 0; 0 0 1], ...
-            [2 0 0; 1 1 0; 1 0 1; 0 1 1; 0 0 2], ...
-            [3 0 0; 2 1 0; 2 0 1; 1 2 0; 1 1 1; 1 0 2; 2 0 1; 0 2 1; 1 0 2; 0 1 2; 0 0 3] ...
-        };
         pows = [];
-        for i = 1:deg + 1
-            pows = [pows; dpow{i}];
-        end   
+        for i = 0:deg
+            for j = 0:deg
+                for k = 0:deg
+                    if i + j + k <= deg
+                        pows = [pows; [i j k]];
+                    end
+                end
+            end
+        end
     else
         error('Multivariate-polynomials with dimension greater than 3 are not supported yet.');
 end

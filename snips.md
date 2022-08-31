@@ -1,3 +1,11 @@
+!!!
+$$
+  \begin{cases}
+    n/2       & \quad \text{if } n \text{ is even} \newline
+    -(n+1)/2  & \quad \text{if } n \text{ is odd}
+  \end{cases}
+$$
+
 $$
 \begin{align}
   \min \quad f(x) \newline
