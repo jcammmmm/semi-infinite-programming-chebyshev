@@ -103,7 +103,13 @@ $$
 $$
 can be reformulated into the equivalent one:
 $$
-\problemMinimizeSingle{t \in \bb{R}}{x^7 - x^6 \leq t,\; x^5 - x^4 \leq t,\; x^3 - x^2 \leq t,\; x - 1 \leq t,\; x \in \bb{R}}.
+\displaylines{ 
+  \min {t \in \bb{R}} \newline
+  \txt{s.t.} \;\; x^7 - x^6 & \leq t, \newline
+  \qquad \quad x^5 - x^4 & \leq t, \newline
+  \qquad \quad x^3 - x^2 & \leq t, \newline
+  \qquad \quad x - 1 & \leq t
+}
 $$
 
 And naturally, the same technique used in $ \eqref{capsipex1} $ and $ \eqref{capsipex2} $ can be applied for the semi-infinite programming problem in $ \eqref{capsipex3} $:
@@ -122,7 +128,8 @@ Now, problem $ \eqref{chebyshevproblem} $ can be expressed without loss of gener
 $$
 \displaylines{
   \min \quad f(x) := t \txt{with} \; x := (\tilde{x}, t)\;  \newline
-  \txt{s.t.} \quad \tilde{x} \in K^{n-1},\; t \in \mathbb{R},\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
+  \txt{s.t.} \quad \tilde{x} \in K^{n-1},\; t \in \mathbb{R}, \newline
+  \qquad \quad \; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\; w \in \Omega. \newline
 }
 $$
 Note that the objective function and also the restriction $ g(\tilde{x}, w) $ are both linear. Finally, the previous problem can be reformulated again by splitting the absolute value restriction $ g(\tilde{x}, w) $ to get the kinks removed as in $ \eqref{capsipex1} $:
@@ -149,7 +156,10 @@ The problem shown in $ \eqref{capsip} $, requires that both _approximation funct
 For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the _multivariate polynomial_:
 $$ 
 \begin{equation}
-F(x, w; d) = x^Tz(w) = (x_1, ..., x_{n-1})^T(z_1(w), ..., z_{n-1}(w))
+\displaylines {
+  F(x, w; d) &= x^Tz(w) \newline
+            &= (x_1, .., x_{n-1})^T(z_1(w), .., z_{n-1}(w))
+}
 \label{multivariate-approx}
 \end{equation}
 $$
@@ -161,13 +171,10 @@ with $ i = 1, ..., n-1 $ and $ p_j \in \bb{N} $. $ \quad \Box $
 
 For instance $ F(x, w; 2) $ with $ x \in K_{n-1} \subseteq \bb{R}^6 $ and $ w \in \Omega \subseteq \bb{R}^2 $:
 $$
-  F(x, w; 2) = 
-     x_1w_1^0w_2^0
-    +x_2w_1^0w_2^1
-    +x_3w_1^0w_2^2
-    +x_4w_1^1w_2^0
-    +x_5w_1^1w_2^1
-    +x_6w_1^2w_2^0
+\displaylines {
+  F(x, w; 2) & = x_1w_1^0w_2^0 + x_2w_1^0w_2^1 + x_3w_1^0w_2^2 \newline
+    & +x_4w_1^1w_2^0 + x_5w_1^1w_2^1 + x_6w_1^2w_2^0.
+}
 $$
 
 Note that the number of monomials $ k $ that will add up the polynomial is:
@@ -442,7 +449,7 @@ d     |SQP n | DM n | SQP e   | DM e    |
 
 > **Table3:** Results comparative with [[4]](#ref4).
 
-### 3.5 Example 5 _(Results)_
+### 3.5 Example 5 _(results)_
 For this target, the author in [[4]](#ref4) stated that their method had stability ussues, and for that reason it was only approximated up to the 3rd-degree polynomial.
 The following figure shows our approximation for the 5th-degree polynomial:
 
