@@ -3,109 +3,29 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
-  <style>
-  * {
-    box-sizing: border-box;
-  }
-
-  html {
-    font-family: monospace;
-    font-family: cursive;
-    font-family: serif;
-  }
-  
-  p {
-    font-size: 14pt;
-    /* text-align: justify; */
-    /* text-justify: inter-word; */
-  }
-
-  /* Create three equal columns that floats next to each other */
-  .column-content {
-    float: left;
-    width: 50%;
-    padding: 10px;
-  }
-
-  .column-side {
-    float: left;
-    width: 25%;
-    padding: 10px;
-  }
-
-  /* p {
-    line-height: 130%;
-  } */
-
-  /* Clear floats after the columns */
-  .row:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
-
-  blockquote p {
-    /* text-align: justify; */
-    font-size: 11pt;
-    font-style: oblique;
-  }
-
-  blockquote p:first-child {
-    /* text-align: justify; */
-    font-size: 12pt;
-  }
-  
-  table {
-    margin: 0 auto; /* centers the table */
-  }
-
-  th {
-    padding-right: 30px;
-  }
-
-  img {
-    width: 100%;
-    height: auto;
-  }
-
-  /* IMPORTANT!
-   * This is a quick fix in order to left-align your equations. Because
-   * linebreaks does not work in version 3.2.
-   * see
-   * https://github.com/mathjax/MathJax/issues/2312
-   */
-  mjx-mtd {
-    display: table-cell;
-    text-align: left !important;
-    padding: .215em .4em;
-  }
-
-  mjx-container {
-    overflow-x: scroll;
-  }
-
-  /**
-   * REMOVES underlining for links
-   */
-  a:link { text-decoration: none; }
-  a:visited { text-decoration: none; }
-  a:hover { text-decoration: none; }
-  a:active { text-decoration: none; }
-  </style>
+  <link rel="stylesheet" href="layout.css" />
   <!-- https://www.mathjax.org/MathJax-v3.2.0-available/ -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> 
   <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-chtml.js"></script>
   
-
   <script>
     /***********************************************************************
      * MATHJAX CONFIGURATION                                               *
      ***********************************************************************/
+    function overflowWrap(elem) {
+      let wrapper = document.createElement('div');
+      wrapper.setAttribute('style', 'overflow-x: scroll;');
+      wrapper.appendChild(elem.cloneNode(true));
+      elem.parentElement.replaceChild(wrapper, elem);
+    }
+
     // http://docs.mathjax.org/en/latest/options/input/tex.html
     window.MathJax = {
       loader: {
         // http://docs.mathjax.org/en/latest/input/tex/extensions/tagformat.html
-        load: ['[tex]/tagformat']
+        load: [
+          '[tex]/tagformat'
+        ]
       },
       tex: {
         inlineMath: [['$', '$']],
@@ -119,10 +39,29 @@
           url:    (id, base) => base + '#' + encodeURIComponent(id),
         }
       },
+     startup: {
+      /***********************************************************************
+       * OVERFLOW FIX                                                        *
+       ***********************************************************************/
+      pageReady: () => {
+        return MathJax.startup.defaultPageReady().then(() => {
+          let mjxcon = document.getElementsByTagName('mjx-container');
+          // wrap mathjax equations with overflow-x div
+          for (mjx of mjxcon)
+            if (mjx.hasAttribute('display'))
+              overflowWrap(mjx);
+          // wrap tables with overflow-x div
+          let tables = document.getElementsByTagName('table');
+          for (table of tables)
+            overflowWrap(table);
+        });
+        }
+      }
     }
   </script>
   </head>
-  <!-- style.zoom is a way to be responsive...  -->
+
+
   <body> 
   <!-- https://jinja.palletsprojects.com/en/3.0.x/templates/#base-template -->
   <div class="row">
@@ -249,7 +188,13 @@ The trick happens when minimization of $ t $ is done from above for $ x $ and $ 
 <p>The same idea can be applied easily for several constraint rules, for instance:
 $$
 \begin{equation}
-\problemMinimizeSingle{\max(x^7 - x^6, x^5 - x^4, x^3 - x^2, x - 1)}{x \in \bb{R}}
+\displaylines {
+  \min \max (       x^7 - x^6, \newline
+    \qquad \qquad   x^5 - x^4, \newline
+    \qquad \qquad   x^3 - x^2, \newline
+    \qquad \qquad   x \;\, - 1 ) \newline
+    \txt{with}      x \in \bb{R}
+}
 \label{capsipex2}
 \end{equation}
 $$
@@ -260,7 +205,7 @@ $$
   \txt{s.t.} \;\; x^7 - x^6 &amp; \leq t, \newline
   \qquad \quad x^5 - x^4 &amp; \leq t, \newline
   \qquad \quad x^3 - x^2 &amp; \leq t, \newline
-  \qquad \quad x - 1 &amp; \leq t
+  \qquad \quad x \;\, - 1 &amp; \leq t
 }
 $$</p>
 <p>And naturally, the same technique used in $ \eqref{capsipex1} $ and $ \eqref{capsipex2} $ can be applied for the semi-infinite programming problem in $ \eqref{capsipex3} $:
@@ -775,7 +720,7 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 <li>Review merit function at fsemiinf.m 321</li>
 </ul>
 <h2 id="referencias">Referencias</h2>
-<p><strong>[1]</strong> MathWorks - https://www.mathworks.com/help/optim/ug/fseminf.html  <br>
+<p><strong>[1]</strong> MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html  <br>
 <strong>[2]</strong> Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)  <br>
 <strong>[3]</strong> Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006) <br>
 <strong id="ref4">[4]</strong> Reemtsen R., Discretizations Methods for the Solutions of Semi-
@@ -790,9 +735,10 @@ pp. 85-103.  <br>
   </div>
 
   </body>
+
   <script>
     /***********************************************************************
-     * DISPLAY CONFIGURATION                                               *
+     * RESPONSIVENESS CONFIGURATION                                        *
      ***********************************************************************/
     // var ismobile = navigator.userAgent.match(/(iPad)|(iPhone)|(iPod)|(android)|(webOS)/i);
     let sides = document.getElementsByClassName("column-side");
@@ -804,6 +750,6 @@ pp. 85-103.  <br>
       sides[0].classList.remove("column-side");
       sides[0].classList.remove("column-side");
       content.classList.remove("column-content");
-    }
+    } 
   </script>
-</html>last update: 2022-08-31 20:02:33.453903
+</html>last update: 2022-09-02 23:42:22.774550

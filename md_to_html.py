@@ -20,5 +20,5 @@ html = md.markdown(text, extensions=['attr_list', 'toc', 'tables'], output_forma
 print(html)
 
 post = env.get_template('layout.html').render(content=html)
-open(FILENAME + '.html', 'w+').write(post)
+open(FILENAME + '.html', 'w+', encoding='UTF-8').write(post)
 open(FILENAME + '.html', 'a').write('last update: ' + str(time.datetime.now()))

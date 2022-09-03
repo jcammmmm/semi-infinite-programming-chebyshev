@@ -97,7 +97,13 @@ The trick happens when minimization of $ t $ is done from above for $ x $ and $ 
 The same idea can be applied easily for several constraint rules, for instance:
 $$
 \begin{equation}
-\problemMinimizeSingle{\max(x^7 - x^6, x^5 - x^4, x^3 - x^2, x - 1)}{x \in \bb{R}}
+\displaylines {
+  \min \max (       x^7 - x^6, \newline
+    \qquad \qquad   x^5 - x^4, \newline
+    \qquad \qquad   x^3 - x^2, \newline
+    \qquad \qquad   x \;\, - 1 ) \newline
+    \txt{with}      x \in \bb{R}
+}
 \label{capsipex2}
 \end{equation}
 $$
@@ -108,7 +114,7 @@ $$
   \txt{s.t.} \;\; x^7 - x^6 & \leq t, \newline
   \qquad \quad x^5 - x^4 & \leq t, \newline
   \qquad \quad x^3 - x^2 & \leq t, \newline
-  \qquad \quad x - 1 & \leq t
+  \qquad \quad x \;\, - 1 & \leq t
 }
 $$
 
@@ -485,7 +491,7 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 
 
 ## Referencias
-**[1]** MathWorks - https://www.mathworks.com/help/optim/ug/fseminf.html    
+**[1]** MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html    
 **[2]** Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)    
 **[3]** Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006)   
 **[4]**{: #ref4} Reemtsen R., Discretizations Methods for the Solutions of Semi-
