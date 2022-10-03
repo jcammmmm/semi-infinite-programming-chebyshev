@@ -3,7 +3,139 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="layout.css" />
+  <style>
+    /* Create three equal columns that floats next to each other */
+.column-content {
+  float: left;
+  width: 50%;
+  padding: 10px;
+}
+
+.column-side {
+  float: left;
+  width: 25%;
+  padding: 10px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+blockquote p {
+  /* text-align: justify; */
+  font-size: 11pt;
+  font-style: oblique;
+}
+
+blockquote p:first-child {
+  /* text-align: justify; */
+  font-size: 12pt;
+}
+
+table {
+  margin: 0 auto; /* centers the table */
+}
+
+th {
+  padding-right: 30px;
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+/* IMPORTANT!
+ * This is a quick fix in order to left-align your equations. Because
+ * linebreaks does not work in version 3.2.
+ * see
+ * https://github.com/mathjax/MathJax/issues/2312
+ */
+mjx-mtd {
+  display: table-cell;
+  text-align: left !important;
+  padding: .215em .4em;
+}
+
+/**
+ * REMOVES underlining for links
+ */
+a:link { text-decoration: none; }
+a:visited { text-decoration: none; }
+a:hover { text-decoration: none; }
+a:active { text-decoration: none; }
+
+body { 
+  font-family: "Computer Modern Serif", serif;
+  font-size: large;
+}
+
+.post-listing-entry {
+  margin-bottom: 1em;
+}
+
+.post-listing-title {
+  margin: 0;
+}
+
+.post-listing-descr {
+  margin-top: 0.5em;
+  margin-bottom: 0;
+}
+
+/************************************************************************
+ * FONTS                                                                *
+ ***********************************************************************/
+ @font-face {
+	font-family: 'Computer Modern Serif';
+	src:  url('fonts/cmuserif/cmunrm.eot');
+	src:  url('fonts/cmuserif/cmunrm.eot?#iefix') format('embedded-opentype'),
+		    url('fonts/cmuserif/cmunrm.woff') format('woff'),
+		    url('fonts/cmuserif/cmunrm.ttf') format('truetype'),
+		    url('fonts/cmuserif/cmunrm.svg#cmunrm') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+@font-face {
+	font-family: 'Computer Modern Serif';
+	src:  url('fonts/cmuserif/cmunbx.eot');
+	src:  url('fonts/cmuserif/cmunbx.eot?#iefix') format('embedded-opentype'),
+		    url('fonts/cmuserif/cmunbx.woff') format('woff'),
+		    url('fonts/cmuserif/cmunbx.ttf') format('truetype'),
+		    url('fonts/cmuserif/cmunbx.svg#cmunbx') format('svg');
+	font-weight: bold;
+	font-style: normal;
+}
+
+
+@font-face {
+	font-family: 'Computer Modern Serif';
+	src:  url('fonts/cmuserif/cmunti.eot');
+	src:  url('fonts/cmuserif/cmunti.eot?#iefix') format('embedded-opentype'),
+		    url('fonts/cmuserif/cmunti.woff') format('woff'),
+		    url('fonts/cmuserif/cmunti.ttf') format('truetype'),
+		    url('fonts/cmuserif/cmunti.svg#cmunti') format('svg');
+	font-weight: normal;
+	font-style: italic;
+}
+
+
+@font-face {
+	font-family: 'Computer Modern Serif';
+	src:  url('fonts/cmuserif/cmunbi.eot');
+	src:  url('fonts/cmuserif/cmunbi.eot?#iefix') format('embedded-opentype'),
+		    url('fonts/cmuserif/cmunbi.woff') format('woff'),
+        url('fonts/cmuserif/cmunbi.ttf') format('truetype'),
+        url('fonts/cmuserif/cmunbi.svg#cmunbi') format('svg');
+	font-weight: bold;
+	font-style: italic;
+}
+  </style>
   <!-- https://www.mathjax.org/MathJax-v3.2.0-available/ -->
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> 
   <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-chtml.js"></script>
@@ -394,25 +526,53 @@ $$
 $$</p>
 <p>Naturally, Lagrange multipliers can be employed to solve optimization problems that also involves unequality constraints, such as this general formulation:
 $$
+\begin{equation}
 \min_{x \in \bb{R}}f(x) \txt{s.t.}
-\left\lbrace\displaylines{
-  \quad g_i(x) =    0, \; i \in \cc{E} \quad \newline
-  \quad g_i(x) \leq 0, \; i \in \cc{I} \quad
-}\right\rbrace
+  \begin{cases}
+    \; g_i(x) =    0, \; i \in \cc{E} \newline
+    \; g_i(x) \leq 0, \; i \in \cc{I} 
+  \end{cases}
+  \label{eq-gralproblem}
+\end{equation}
 $$
 where $ f $ and $ g_i $ are real-valued smooth functions on a subset of $ \bb{R}^n $ for $ i \in \cc{E} \cup \cc{I}$, and $ \cc{E}$ and $ \cc{I} $ are finite set of indices for equality and inequality constraints respectively.</p>
 <!-- TODO: Write down the strategy to optimize regions using lagrange multipliers -->
 
-<p>The equality criteria stated in previous theorem is referred as <em>Lagrangian function</em>:
+<p>The equality criteria in previous theorem can be stated more compactly by introducing the following function called <em>Lagrangian function</em>:
 $$
 \begin{equation}
-  \cc{L}(x, \lambda) = f(x) - \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x)
+  \cc{L}(x, \lambda) = f(x) - \sum_{i \in \cc{E}} \lambda_{i} g_i(x)
+  \label{eq-lagrangian}
+\end{equation}
+$$</p>
+<p>And then taking the gradient respect to $ x $:
+$$
+\nabla \cc{L_x} (x, \lambda) = \nabla f(x) - \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x)
+$$</p>
+<p>Finally, if $ x^{\star} $ is an optimal point, then:
+$$
+\begin{equation}
+  \nabla \cc{L_x} (x^{\star}, \lambda) = 0
 \end{equation}
 $$</p>
 <h3 id="23-kkt-optimality-conditions">2.3 KKT optimality conditions</h3>
-<p>Known as <em>First-Order Necessary Conditions</em>, are conditions concerned to the gradients of a local solution $ x^\star $.</p>
-<p><strong id="theorem-kkt">Theorem 2.3.1</strong>
-<em>Let $ F(x, w) $ an approximation function and let x be an arbirary number in $ \Omega $. Then there exists one element in $ F_i $ such that x &lt; 3</em></p>
+<p>Known as <em>First-Order Necessary Conditions</em>, are conditions concerned to the gradients of a local solution $ x^\star $. As such, they are statements that must be true for a given $ x^\star $. At its core, this conditions are based on a step-wise strategy when the function value is optimized.</p>
+<p>This strategy states that if you cannot find a step vector $ s $ such that $ \nabla f(x) s &lt; 0 $ and also $ \nabla g_i(x) s \geq 0 $ for the general problem $ \eqref{eq-gralproblem} $, it means that you have reached an optimal value bacause the function cannot get a lower value while satisfying the constraints. In fact, geometrically this point is met when both $ \nabla g_i(x) $ and $ \nabla f(x) $ point to the same direction: $ \nabla f(x) = \lambda \nabla g_i(x) $ for $ \lambda \in \bb{R} $. That is $ \nabla_{x} \cc{L}(x, \lambda) $, the <em>Lagrangian</em> gradient respect $ x $ of $ \eqref{eq-lagrangian} $.</p>
+<p>As this method is based on <em>first-order approximations</em> i.e. <em>gradients</em>, a qualification must be satisfied in order to capture correctly the geometric features of the neighborhood of $ x $. This qualification is provided in the following definition <a href="#ref2">[2]</a>.</p>
+<p><strong>Definition 2.3.1</strong> <em id="def-licq">(LICQ)</em> <br>
+Given the point $ x $ and the active set $ \cc{A}(x) $ $ = $ $ \cc{E} $ $ \cup $ $ \lbrace i \in \cc{I} $ $ | $ $ c_i(x) = 0 \rbrace $, we say that the <em>linear independence constraint qualification</em> (LICQ) holds if the set of active constraint gradients $ \lbrace \nabla c_i(x), \; i \in \cc{A}(x) \rbrace $ is linearly independent. $ \Box $</p>
+<p>Finally, the <em>first-order necessary conditions</em> are given in the following theorem. This conditions are often known as <em>Kuhn-Karush-Tucker Condtions</em> or <em>KKT Conditions</em> for short.</p>
+<p><strong id="thrm-kkt">Theorem 2.3.2</strong> <em>(First-Order Necessary Conditions)</em><br>
+Suppose that $ x^\star $ is a local solution of $ \eqref{eq-gralproblem} $, that the functions $ f $ and $ g_i $ are continuously differentiable, and that the LICQ holds  at $ x^\star $. Then there is a Lagrange multiplier vector $ \lambda^\star $, with components $ \lambda_{i}^{\star} $,  $ i \in \cc{E} \cup \cc{I} $, such that the following conditions are satisfied at $ (x^\star, \lambda^\star) $:</p>
+<p>$$
+\displaylines {
+  \nabla_x \cc{L}(x^\star, \lambda^\star) &amp; = 0, \newline
+  \qquad \;                 c_i(x^\star)  &amp; = 0, \quad \forall i \in \cc{E}, \newline 
+  \qquad \;               c_i(x^\star) &amp; \geq 0, \quad \forall i \in \cc{I}, \newline
+  \qquad \qquad          \lambda^\star &amp; \geq 0, \quad \forall i \in \cc{I}, \newline
+  \quad \lambda^\star        c_i(x^\star) &amp; = 0, \quad \forall i \in \cc{E} \cup \cc{I}. \quad \Box
+}
+$$</p>
 <h3 id="24-quadratic-programming">2.4 Quadratic programming</h3>
 <p>Es un método de aproximación local</p>
 <h3 id="25-sequential-quadratic-programming-method-sqp">2.5 Sequential Quadratic Programming method SQP</h3>
@@ -721,7 +881,7 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 </ul>
 <h2 id="referencias">Referencias</h2>
 <p><strong>[1]</strong> MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html  <br>
-<strong>[2]</strong> Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)  <br>
+<strong id="ref2">[2]</strong> Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)  <br>
 <strong>[3]</strong> Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006) <br>
 <strong id="ref4">[4]</strong> Reemtsen R., Discretizations Methods for the Solutions of Semi-
 In nite Programming Problems, J. Optim. Theory Appl, 71 (1991),
@@ -752,4 +912,4 @@ pp. 85-103.  <br>
       content.classList.remove("column-content");
     } 
   </script>
-</html>last update: 2022-09-02 23:42:22.774550
+</html>Generated with NeatPosts by LogicFoundries </br>Last updated: 2022-09-25 00:54:48.719122

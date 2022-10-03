@@ -338,31 +338,70 @@ $$
 
 Naturally, Lagrange multipliers can be employed to solve optimization problems that also involves unequality constraints, such as this general formulation:
 $$
+\begin{equation}
 \min_{x \in \bb{R}}f(x) \txt{s.t.}
-\left\lbrace\displaylines{
-  \quad g_i(x) =    0, \; i \in \cc{E} \quad \newline
-  \quad g_i(x) \leq 0, \; i \in \cc{I} \quad
-}\right\rbrace
+  \begin{cases}
+    \; g_i(x) =    0, \; i \in \cc{E} \newline
+    \; g_i(x) \leq 0, \; i \in \cc{I} 
+  \end{cases}
+  \label{eq-gralproblem}
+\end{equation}
 $$
 where $ f $ and $ g_i $ are real-valued smooth functions on a subset of $ \bb{R}^n $ for $ i \in \cc{E} \cup \cc{I}$, and $ \cc{E}$ and $ \cc{I} $ are finite set of indices for equality and inequality constraints respectively.
 
 <!-- TODO: Write down the strategy to optimize regions using lagrange multipliers -->
 
-The equality criteria stated in previous theorem is referred as _Lagrangian function_:
+The equality criteria in previous theorem can be stated more compactly by introducing the following function called _Lagrangian function_:
 $$
 \begin{equation}
-  \cc{L}(x, \lambda) = f(x) - \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x)
+  \cc{L}(x, \lambda) = f(x) - \sum_{i \in \cc{E}} \lambda_{i} g_i(x)
+  \label{eq-lagrangian}
 \end{equation}
 $$
 
-### 2.3 KKT optimality conditions
-Known as _First-Order Necessary Conditions_, are conditions concerned to the gradients of a local solution $ x^\star $.
+And then taking the gradient respect to $ x $:
+$$
+\nabla \cc{L_x} (x, \lambda) = \nabla f(x) - \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x)
+$$
 
-**Theorem 2.3.1**{: #theorem-kkt }
-_Let $ F(x, w) $ an approximation function and let x be an arbirary number in $ \Omega $. Then there exists one element in $ F_i $ such that x < 3_
+Finally, if $ x^{\star} $ is an optimal point, then:
+$$
+\begin{equation}
+  \nabla \cc{L_x} (x^{\star}, \lambda) = 0
+\end{equation}
+$$
+
+
+
+### 2.3 KKT optimality conditions
+Known as _First-Order Necessary Conditions_, are conditions concerned to the gradients of a local solution $ x^\star $. As such, they are statements that must be true for a given $ x^\star $. At its core, this conditions are based on a step-wise strategy when the function value is optimized.
+
+This strategy states that if you cannot find a step vector $ s $ such that $ \nabla f(x) s < 0 $ and also $ \nabla g_i(x) s \geq 0 $ for the general problem $ \eqref{eq-gralproblem} $, it means that you have reached an optimal value bacause the function cannot get a lower value while satisfying the constraints. In fact, geometrically this point is met when both $ \nabla g_i(x) $ and $ \nabla f(x) $ point to the same direction: $ \nabla f(x) = \lambda \nabla g_i(x) $ for $ \lambda \in \bb{R} $. That is $ \nabla_{x} \cc{L}(x, \lambda) $, the _Lagrangian_ gradient respect $ x $ of $ \eqref{eq-lagrangian} $.
+
+As this method is based on _first-order approximations_ i.e. _gradients_, a qualification must be satisfied in order to capture correctly the geometric features of the neighborhood of $ x $. This qualification is provided in the following definition [[2]](#ref2).
+
+**Definition 2.3.1** _(LICQ)_{: #def-licq}   
+Given the point $ x $ and the active set $ \cc{A}(x) $ $ = $ $ \cc{E} $ $ \cup $ $ \lbrace i \in \cc{I} $ $ | $ $ c_i(x) = 0 \rbrace $, we say that the _linear independence constraint qualification_ (LICQ) holds if the set of active constraint gradients $ \lbrace \nabla c_i(x), \; i \in \cc{A}(x) \rbrace $ is linearly independent. $ \Box $
+
+Finally, the _first-order necessary conditions_ are given in the following theorem. This conditions are often known as _Kuhn-Karush-Tucker Condtions_ or _KKT Conditions_ for short.
+
+**Theorem 2.3.2**{: #thrm-kkt } _(First-Order Necessary Conditions)_  
+Suppose that $ x^\star $ is a local solution of $ \eqref{eq-gralproblem} $, that the functions $ f $ and $ g_i $ are continuously differentiable, and that the LICQ holds  at $ x^\star $. Then there is a Lagrange multiplier vector $ \lambda^\star $, with components $ \lambda_{i}^{\star} $,  $ i \in \cc{E} \cup \cc{I} $, such that the following conditions are satisfied at $ (x^\star, \lambda^\star) $:
+
+$$
+\displaylines {
+  \nabla_x \cc{L}(x^\star, \lambda^\star) & = 0, \newline
+  \qquad \;                 c_i(x^\star)  & = 0, \quad \forall i \in \cc{E}, \newline 
+  \qquad \;               c_i(x^\star) & \geq 0, \quad \forall i \in \cc{I}, \newline
+  \qquad \qquad          \lambda^\star & \geq 0, \quad \forall i \in \cc{I}, \newline
+  \quad \lambda^\star        c_i(x^\star) & = 0, \quad \forall i \in \cc{E} \cup \cc{I}. \quad \Box
+}
+$$
+
+
 
 ### 2.4 Quadratic programming
-Es un método de aproximación local
+Quadratic programming is a topic within numerical optimization that deeps on the techniques to optimize linear-constrainded cuadratic polynomials. 
 
 ### 2.5 Sequential Quadratic Programming method SQP
 Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...
@@ -492,7 +531,7 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 
 ## Referencias
 **[1]** MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html    
-**[2]** Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)    
+**[2]**{: #ref2} Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)    
 **[3]** Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006)   
 **[4]**{: #ref4} Reemtsen R., Discretizations Methods for the Solutions of Semi-
 In nite Programming Problems, J. Optim. Theory Appl, 71 (1991),
