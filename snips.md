@@ -1,3 +1,10 @@
+The actual method follows the W. C. Davidon's **[2]** idea of preserving the previous iteration gradient in order to incorporate curvature information to the $ B_k $ matrix:
+
+$$ 
+  \nabla q_{k + 1} (-\alpha p_k) = \nabla f_k = \nabla f_{k + 1} - \alpha B_{k + 1} p_k
+$$
+
+
 
 
 $$

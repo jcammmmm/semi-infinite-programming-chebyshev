@@ -237,15 +237,17 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <li><a href="#16-problem-instances">1.6 Problem instances</a></li>
 </ul>
 </li>
-<li><a href="#2-sqp-method">2. SQP Method</a><ul>
+<li><a href="#2-numerical-optimization-background">2. Numerical Optimization Background</a><ul>
 <li><a href="#21-newtons-method">2.1 Newton's Method</a></li>
+<li><a href="#22-quasi-newtons-methods-bfgs">2.2 Quasi Newton's methods (BFGS)</a></li>
 <li><a href="#22-lagrange-multipliers">2.2 Lagrange Multipliers</a></li>
 <li><a href="#23-kkt-optimality-conditions">2.3 KKT optimality conditions</a></li>
 <li><a href="#24-quadratic-programming">2.4 Quadratic programming</a></li>
 <li><a href="#25-sequential-quadratic-programming-method-sqp">2.5 Sequential Quadratic Programming method SQP</a></li>
 </ul>
 </li>
-<li><a href="#3-numerical-experiments">3. Numerical Experiments</a><ul>
+<li><a href="#3-optimization-software-walkthrough">3. Optimization Software Walkthrough</a></li>
+<li><a href="#4-numerical-experiments">4. Numerical Experiments</a><ul>
 <li><a href="#31-example-1-results">3.1 Example 1 (results)</a></li>
 <li><a href="#32-example-2-results">3.2 Example 2 (results)</a></li>
 <li><a href="#33-example-3-results">3.3 Example 3 (results)</a></li>
@@ -253,9 +255,9 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <li><a href="#35-example-5-results">3.5 Example 5 (results)</a></li>
 </ul>
 </li>
-<li><a href="#4-source-code-revision">4. Source code revision</a></li>
-<li><a href="#todo">TODO</a></li>
-<li><a href="#referencias">Referencias</a></li>
+<li><a href="#5-source-code-revision">5. Source code revision</a></li>
+<li><a href="#6-conclusions">6. Conclusions</a></li>
+<li><a href="#references">References</a></li>
 </ul>
 </li>
 </ul>
@@ -266,7 +268,7 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <p>The <em>Chebyshev approximation problem</em> <em>(CAP)</em> can be formulated in serveral ways, one of them is described as the following <em>minimax</em> problem:
 $$
 \begin{equation}
-  \min_{ x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
+  \min_{x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
   \label{chebyshevproblem}
 \end{equation}
 $$
@@ -274,23 +276,27 @@ where
   $ K_{n-1} \subseteq \mathbb{R}^{n-1} $ and
   $ \Omega \subseteq \mathbb{R}^{m} $ are non-empty and compact sets, 
   $ d: \Omega \mapsto \mathbb{R} $ and
-  $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. Here, $ d(w) $ and $ F(x, w) $ represents the function to aproximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize. Note that the approximation error given by $ |d(w) - F(x, w)| $ is not squared and computed linearly.</p>
+  $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. </p>
+<p>Here, $ d(w) $ and $ F(x, w) $ represents the function to aproximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize and $ w $ is the function input or variables. </p>
+<p>Note that the approximation error given by $ |d(w) - F(x, w)| $ is not squared and is computed linearly, and it is performed in every point of the approximation interval $ \Omega $. In fact, each <em>semi-infinite constraint</em> represent each possible function value of $ d $ and $ F $ over the approximation interval $ \Omega $.</p>
+<p>As a side note, most of the numerical methods shown in this document works thanks to the approximation domain set convexity, for that reason authors commonly refer and name that set with a symbol that also has a convex shape such as $ \Omega $.</p>
 <h3 id="12-semi-infinite-programming-problem-sip">1.2 Semi-infinite programming problem <em>(SIP)</em></h3>
 <p>In general terms, a SIP is an optimization problem described as follows:</p>
 <p>$$
 \begin{equation}
 \displaylines{
   \min \; f(x) \newline
-  \textrm{s.t.} \; g(x, w) \leq 0, \; x \in \bb{R}, \; w \in \Omega, \; |\Omega| = \infty 
+  \textrm{s.t.} \; g(x, w) \leq 0, \; x \in K, \; w \in \Omega, \; |\Omega| = \infty 
 }
 \label{def-sip}
 \end{equation}
 $$</p>
 <p>where 
-  $ f: K \mapsto \bb{R} $ and
-  $ g: K \times \Omega \mapsto \bb{R} $ are smooth functions ($ g $ will be referred as semi-infinite constraint), with
   $ \Omega \subseteq \bb{R}^{n-1} $, 
-  $ K \subseteq \bb{R}^{m} $. In general, this problem definition can have other kind constraints, i.e. equality, inequality and several semi-infinite constraints, but at least must be one semi-infinite constraint to have a SIP.</p>
+  $ K \subseteq \bb{R}^{m} $, and
+  $ f: K \mapsto \bb{R} $ and
+  $ g: K \times \Omega \mapsto \bb{R} $ are smooth functions ($ g $ will be referred as semi-infinite constraint).
+In general, this problem definition can have other kind constraints, i.e. equality, inequality and several semi-infinite constraints, but at least must be one semi-infinite constraint to have a SIP.</p>
 <p>In other words, a SIP is just a minimization problem where one of the constraints is parametrized with a variable that belongs to an infinite set, leaving virtually an infinite number of constrains (one for each possible parameter value).</p>
 <p>Also, the problem $ \eqref{def-sip} $ can be reformulated as follows:
 $$
@@ -474,9 +480,9 @@ $$
   i \in \lbrace 2, 3, 4, 5 \rbrace
 }
 $$</p>
-<h2 id="2-sqp-method">2. SQP Method</h2>
+<h2 id="2-numerical-optimization-background">2. Numerical Optimization Background</h2>
 <p>CAP will be computed with an open source software implementation of Sequential Programming Method (SQP). In particular the implementation provided by MATLAB will be used, that can be found in <em>fseminf</em> routine that belongs to the Optimization Package Extension. </p>
-<p>Current section's aim is to explain the core gears of SQP method, that relies on the concepts of <em>Newton's Method</em> for polynomial root approximation, <em>Langrage multipliers</em> for local constraint optimization, <em>Kuhn-Karush-Tucker</em> optimality conditions and <em>Quadratic Programming</em>. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of <em>Calculus Theory</em>.</p>
+<p>Current section's aim is to explain the core gears of SQP method, that relies on the concepts of <em>Newton's Method</em> for polynomial root approximation, <em>Langrage multipliers</em> for local constraint optimization, <em>Kuhn-Karush-Tucker</em> optimality conditions and <em>Quadratic Programming</em>. Those methods and techniques requires that the objective functions and constraints must be smooth; this ensures a predictable algorithm behaviour because they are designed on top of the essence of <em>Differential Calculus</em>.</p>
 <h3 id="21-newtons-method">2.1 Newton's Method</h3>
 <p>The Newton's method is a numerical method that approximates the roots of a smooth function (i.e. $ x $ where $ f(x) $ vanishes). Since this is a necessary condition for a maximizer point, this method is employed intensively within the optimization theory.</p>
 <p>Having the nonlinear uncostrained minimization problem $ \problemUnconstr $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. That means we have a system of $ n $ non-linear equations that must be equal to $ 0 $ in order to minimize $ f(x) $.</p>
@@ -499,6 +505,94 @@ $$</p>
 <p>Since this result is an approximation to the true $ x $ that vanishes $ g(x) $, the value $ x^N = x + h $ can be employed as starting point for the next iteration. The method finishes when a precision threshold is met.</p>
 <p>As pointed out by several authors <strong>[3]</strong> this is one of the most important techniques in numerical optimization because of its fast rate of convergence. In fact, some optimization books (<strong>[2]</strong>, <strong>[3]</strong>) devote at least one chapter to develop better convergence rates and to lease techinique's undesired behaviors.</p>
 <p>As stated before, and for the following subsections, here we will only provide an overview of the core method. Further details can be found in the addressed references.</p>
+<h3 id="22-quasi-newtons-methods-bfgs">2.2 Quasi Newton's methods (BFGS)</h3>
+<p>These methods are an alternative to compute the zeroes of functions. They appear as a novel technique when <em>Jacobian</em> or <em>Hessian</em> matrices are hard to compute. The method that is currently employed within the optimization software tool employs BFGS as method to find zeros. BFGS has the main advantage that it does not use second derivates to perform the optimization, for that reason it is an efficient algorithm to compute the CAP-SIP.</p>
+<p>At its core, the BFGS method tries to find the zeros iteratively of the following quadratic model at $ f_k = f(x_k) $:</p>
+<p>$$
+q(p) = f_{k} + \nabla {f_{k}^T}{p} + \frac{1}{2} p B_{k} p^T
+$$</p>
+<p>by updating the matrix $ B_k $ in a way that uses the gradient information obtained at each iteration and merging it to the matrix $ B_{k + 1} $ and avoid to recompute the $ n^2 $ derivatives ($ n $ is the number of variables of $ f $) that composes the $ B $ matrix. The minimizer's direction can be found at $ p_k $:</p>
+<p>$$
+  p_k = -B_{k}^{-1} \nabla f_{k} 
+$$ </p>
+<p>where $ p_k $ is used as search direction to update the model to this next domain point:</p>
+<p>$$
+  x_{k + 1} = x_{k} + \alpha_{k} p_{k}
+$$</p>
+<p>where the step length $ \alpha_{k} $ is chose to met the Wolf condtions and $ k + 1 $ refers to model's new components that we want to compute. </p>
+<p>The actual method follows the W. C. Davidon's <strong>[2]</strong> idea of preserving the previous iteration gradient in order to incorporate curvature information to the $ B_k $ matrix:</p>
+<p>$$ 
+\displaylines{
+  \nabla q_{k + 1} (-\alpha p_k) &amp; = \nabla f_k \newline
+    &amp; = \nabla f_{k + 1} - \alpha B_{k + 1} p_k
+}
+$$</p>
+<p>By re-arranging we get:</p>
+<p>$$
+  B_{k+1} \alpha_{k} p_{k} = \nabla f_{k + 1} - \nabla f_{k}
+$$</p>
+<p>if we define $ s_k = x_{k + 1} - x_{k} = \alpha_{k} p_{k} $ and $ y_k = \nabla f_{k+1} - \nabla f$, the previous expression simplifies to the <em>secant equation</em>:</p>
+<p>$$
+  B_{k+1} s_{k} = y_{k}
+$$</p>
+<p>The next important step is made thanks to the <em>Sherman-Morrison-Woodbury</em> formula, that states the following theorem.</p>
+<p><strong>Theorem 2.2.1</strong> <em id="thrm-smw-formula">(Sherman-Morrison-Woodbury formula)</em>  <br>
+Let $ U $ and $ V $ be matrices in $ \bb{R}^{n \times p} $ for some $ p $ between $ 1 $ and $ n $. If we define 
+$$
+  \hat{A} = A + U V^{T}
+$$
+then $ \hat{A} $ is nonsingular if and only if $ (I + V^{T} A^{-1} U) $ is nonsingular, and in this case we have
+$$
+\begin{equation}
+  \hat{A^{-1}} = A^{-1} - A^{-1} U (I + V^{T} A^{-1} U)^{-1} V^{T} A^{-1} .
+  \label{eq-smw-form} 
+  \quad \Box
+\end{equation}
+$$</p>
+<p>If $ H_{k} = B_{k}^{-1} $ and following equation $ \eqref{eq-smw-form} $ we get that:
+$$
+  H_{k+1} = H_{k} - \frac{H_k y_k y_k^T H_k}{y_k^T H_k y_k} - \frac{s_k s_k^T}{y_k^T y_k}. 
+$$
+the inverse matrix of $ B_k $ can be computed in a cheap way only throught matrix multiplications.</p>
+<p>The BFGS also imposes that requirement that at each step $ H_{k+1} $ must be symmetric and positive definite, and must satisfy the <em>secant equation</em>:
+$$<br>
+  H_{k+1} y_k = s_k
+$$</p>
+<p>Also, it is desired that at each step the nearest $ H_{k+1} $ is computed. This definition of nearest $ H_{k + 1} $ to the previous $ H_{k} $ is stated with the following minimization problem:
+$$
+  \min_{H} || H - H_{k} || \txt{s.t.} H = H^T, H s_k = y_k
+$$</p>
+<p>whose unique solution is given by:
+$$
+\begin{equation}
+  H_{k + 1} = (I - \rho_{k} s_{k} y_{k}^T) H_k (I - \rho_{k} y_{k} s_{k}^T) + \rho_{k} s_{k} s_{k}^T
+  \label{eq-hkk}
+\end{equation}
+$$</p>
+<p>Now, here is the algorithm BFGS Quasi-Newton method:</p>
+<pre><code class="language-python">def BFGS(x0, eps, H0):
+  &quot;&quot;&quot;
+  x0 : starting point
+  eps: convergence tolerance
+  H0 : inverse Hessian approximation 
+  &quot;&quot;&quot;
+
+  k = 0
+  while abs(gradient(fk) &gt; eps):
+    # compute search direction.
+    pk = matmult(-Hk, gradient(fk))
+
+    # ak is computed from a line search procedure to satisfy 
+    # Wolfe condtions.
+    xkk = xk + dot(ak, pk)
+    sk = xkk - xk
+    yk = grad(fkk) - grad(fk)
+
+    # Hkk is computed with equation (13)
+    Hkk = computeHkk(Hk)
+    k = k + 1
+  return Hkk
+</code></pre>
 <h3 id="22-lagrange-multipliers">2.2 Lagrange Multipliers</h3>
 <p>This is one of the fundamental techniques of constrained optimization. Here the technique is reviewed incrementally, starting from one equality constraint, then with several equality constraints and finally with unequality constraints.</p>
 <p>This method appears naturally when the unconstrained problem $ \min_{x \in \bb{R}} f(x) $ becomes constrained by one equality: 
@@ -574,10 +668,19 @@ Suppose that $ x^\star $ is a local solution of $ \eqref{eq-gralproblem} $, that
 }
 $$</p>
 <h3 id="24-quadratic-programming">2.4 Quadratic programming</h3>
-<p>Es un método de aproximación local</p>
+<p>Quadratic programming is a topic within numerical optimization that deeps on the techniques to optimize linear-constrainded cuadratic polynomials. </p>
 <h3 id="25-sequential-quadratic-programming-method-sqp">2.5 Sequential Quadratic Programming method SQP</h3>
 <p>Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...</p>
-<h2 id="3-numerical-experiments">3. Numerical Experiments</h2>
+<h2 id="3-optimization-software-walkthrough">3. Optimization Software Walkthrough</h2>
+<p>As aforementioned, the core gear is based on the SQP method. In this section, the software implementation considerations and the previously introduced mathematical concepts are discused. </p>
+<p>It is well known that <em>chevishev approximation problem (CAP)</em> is one of the first examples shown to understand the gears behind the <em>semi-infinite programming (SIP)</em> problems. Looking at the equation $ \eqref{chebyshevproblem} $, it is seen that its nuts and bolts are keep together in two stages: a maximization stage that looks for the biggest difference among all the approximation interval, and a second stage that takes the lowest difference while modifying the approximation function parameters. In fact, this mechanism it is employed in the software optimization tool implementation <a href="#ref1">[1]</a>. </p>
+<p>The software tool solves semi-infinite programming problems such as the described in $ \eqref{def-sip} $. The previously mentioned reformulation consist in to think the semi-infinite constraint $ g $ as a first-stage maximization problem with a fixed $ x $, such as the core idea in <em>CAP</em>. </p>
+<p>Moreover, a domain set $ \Omega $ discretization is employed to perform piecewise quadratic and cubic approximations to perform the maximization process. In mathematical terms the semi-infinite constraint $ g $ in problem $ \eqref{def-sip} $ should look like as this:</p>
+<p>$$
+  \max_{w \in \hat{\Omega}} \; \hat{g}(x, w) \leq 0, \; x = c, \; |\hat{\Omega}| \in \bb{N} 
+$$</p>
+<p>where $ \hat{\Omega} \subset \Omega $ is the discretization of $ \Omega $ that is provided as input to the software tool (e.g. a user defined grid), $ \hat{g} $ is a piecewise quadratic and cubic approximation of the original $ g $ and $ c \in K $, with $ \Omega $, $ g $ and $ K $ defined as in $ \eqref{def-sip} $.</p>
+<h2 id="4-numerical-experiments">4. Numerical Experiments</h2>
 <p>The numerical experiments were performed to approximate 2-dimensional and 3-dimensional functions. For each example a two tile figure is provided. The left figure is an error plot that shows the difference between the CAP-SIP approximation and the target function. </p>
 <p>The 2-dimensional plot is rotated around the <em>z-axis</em> to appreciate the approximation from every side. On the other hand, as 3-dimensional plots belongs to 4th dimension, the 3-dimensional levels are plotted and this is the actual animation of those pictures.</p>
 <h3 id="31-example-1-results">3.1 Example 1 <em>(results)</em></h3>
@@ -867,20 +970,15 @@ The following figure shows our approximation for the 5th-degree polynomial:</p>
 <p><strong>Table4:</strong> Results comparative.</p>
 </blockquote>
 <p>Only left to review and compare the iteration complexity in each one of the methods <em>SQP</em> used in the current work, <em>DM</em> used in <a href="#ref4">[4]</a> and <em>AE</em> in <a href="#ref8">[8]</a>. This comparation will be the object of a future article.</p>
-<h2 id="4-source-code-revision">4. Source code revision</h2>
+<h2 id="5-source-code-revision">5. Source code revision</h2>
 <p>In this section we will examine the source code of <em>fseminf</em> routine. Having the 
 knoledge of SQP Methods, we will point out what ideas are applied and in which 
 parts.
 After defining the approximation problem in terms of SIP, only left to pour the functions $ F(x, w) $ and $ d(w) $ to $ \eqref{chebyshevproblem} $. </p>
-<h2 id="todo">TODO</h2>
-<ul>
-<li>Change 'continuous' by 'smooth', or belongs to C^i, because 'continuos' does not  mean 'diffrenciable'.</li>
-<li>Expand the idea of necessary and sufficient conditions, to expand the Lagrange multipliers method to region constraints.</li>
-<li>Add the examples to the end of the first section.</li>
-<li>Review merit function at fsemiinf.m 321</li>
-</ul>
-<h2 id="referencias">Referencias</h2>
-<p><strong>[1]</strong> MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html  <br>
+<h2 id="6-conclusions">6. Conclusions</h2>
+<p>The software implementation employed to compute the numerical experiments actually uses a reformulation that has the same idea as <em>CAP</em>. A good technique to solve <em>SIP</em> it is related to a good problem's reformulation. In order to gain computing time, it should be good to adapt the implementation to the particular problem. Providing an elaborate and adapatative discretization in order to obtain a better piecewise cubic and quadratic approximation, could improve the results.</p>
+<h2 id="references">References</h2>
+<p><strong id="ref1">[1]</strong> MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html  <br>
 <strong id="ref2">[2]</strong> Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)  <br>
 <strong>[3]</strong> Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006) <br>
 <strong id="ref4">[4]</strong> Reemtsen R., Discretizations Methods for the Solutions of Semi-
@@ -912,4 +1010,4 @@ pp. 85-103.  <br>
       content.classList.remove("column-content");
     } 
   </script>
-</html>Generated with NeatPosts by LogicFoundries </br>Last updated: 2022-09-25 00:54:48.719122
+</html>Generated with NeatPosts by LogicFoundries </br>Last updated: 2022-10-16 21:54:30.533307
