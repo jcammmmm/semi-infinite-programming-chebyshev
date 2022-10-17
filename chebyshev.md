@@ -526,18 +526,26 @@ Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un
 --------------------------------------------------------------------------------------
 As aforementioned, the core gear is based on the SQP method. In this section, the software implementation considerations and the previously introduced mathematical concepts are discused. 
 
-It is well known that _chevishev approximation problem (CAP)_ is one of the first examples shown to understand the gears behind the _semi-infinite programming (SIP)_ problems. Looking at the equation $ \eqref{chebyshevproblem} $, it is seen that its nuts and bolts are keep together in two stages: a maximization stage that looks for the biggest difference among all the approximation interval, and a second stage that takes the lowest difference while modifying the approximation function parameters. In fact, this mechanism it is employed in the software optimization tool implementation [[1]](#ref1). 
+It is well known that _chevishev approximation problem (CAP)_ is one of the first examples shown to understand the gears behind the _semi-infinite programming (SIP)_ problems. Looking at the equation $ \eqref{chebyshevproblem} $, it is seen that its nuts and bolts are keep together in two stages: a maximization stage that looks for the biggest difference among all the approximation interval, and a second stage that takes the lowest difference while modifying the approximation function parameters. In fact, this mechanism is employed in the software optimization tool implementation [[1]](#ref1).
 
-The software tool solves semi-infinite programming problems such as the described in $ \eqref{def-sip} $. The previously mentioned reformulation consist in to think the semi-infinite constraint $ g $ as a first-stage maximization problem with a fixed $ x $, such as the core idea in _CAP_. 
+### 3.1 First stage: maximization
 
-Moreover, a domain set $ \Omega $ discretization is employed to perform piecewise quadratic and cubic approximations to perform the maximization process. In mathematical terms the semi-infinite constraint $ g $ in problem $ \eqref{def-sip} $ should look like as this:
+The software tool solves iteratively semi-infinite programming problems such as the described in $ \eqref{def-sip} $, after doing two major problem reformulations in the first stage at each iteration. 
+
+First, perform a piecewise quadratic or cubic approximation of $ g $ over a discretizion of the domain set $ \Omega $. Then, reformulates each semi-infinite constraint $ g $ with a fixed $ x $ into a maximization problem, such as the core idea in _CAP_ $ \eqref{chebyshevproblem} $. 
+
+In mathematical terms the semi-infinite constraint $ g $ in problem $ \eqref{def-sip} $ should look like as this:
 
 $$
   \max_{w \in \hat{\Omega}} \; \hat{g}(x, w) \leq 0, \; x = c, \; |\hat{\Omega}| \in \bb{N} 
 $$
 
-where $ \hat{\Omega} \subset \Omega $ is the discretization of $ \Omega $ that is provided as input to the software tool (e.g. a user defined grid), $ \hat{g} $ is a piecewise quadratic and cubic approximation of the original $ g $ and $ c \in K $, with $ \Omega $, $ g $ and $ K $ defined as in $ \eqref{def-sip} $.
+where $ \hat{\Omega} \subset \Omega $ is an user provided discretization of $ \Omega $ (e.g. an user defined grid), $ \hat{g} $ is a piecewise quadratic and cubic approximation of the original $ g $ and $ c \in K $, with $ \Omega $, $ g $ and $ K $ defined as in $ \eqref{def-sip} $.
 
+By applying this reformulations, the original problem with infinitely constraints was translated into a problem that has finite and piecewise polinomial constraints. Once the maximization is computed, the result is passed to a constrained non-linear solver that will perform the minimization stage.
+
+### 3.2 Second stage: minimization
+The minimization stage is perfomed in a constrained non-linear solver that executes an SQP optimization algorithm, whose details were discussed in previous sections. This minimization problem is composed of the original objective function $ f $ in $ \eqref{def-sip} $ and a new constraint set made of the results computed in the maximization stage.
 
 
 4. Numerical Experiments
@@ -660,7 +668,7 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 The software implementation employed to compute the numerical experiments actually uses a reformulation that has the same idea as _CAP_. A good technique to solve _SIP_ it is related to a good problem's reformulation. In order to gain computing time, it should be good to adapt the implementation to the particular problem. Providing an elaborate and adapatative discretization in order to obtain a better piecewise cubic and quadratic approximation, could improve the results.
 
 ## References
-**[1]**{: #ref1} MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html    
+**[1]**{: #ref1} MathWorks - [https:// www.mathworks.com /help/optim/ug/fseminf.html](https://www.mathworks.com/help/optim/ug/fseminf.html)
 **[2]**{: #ref2} Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)    
 **[3]** Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006)   
 **[4]**{: #ref4} Reemtsen R., Discretizations Methods for the Solutions of Semi-

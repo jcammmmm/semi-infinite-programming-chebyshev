@@ -246,7 +246,11 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <li><a href="#25-sequential-quadratic-programming-method-sqp">2.5 Sequential Quadratic Programming method SQP</a></li>
 </ul>
 </li>
-<li><a href="#3-optimization-software-walkthrough">3. Optimization Software Walkthrough</a></li>
+<li><a href="#3-optimization-software-walkthrough">3. Optimization Software Walkthrough</a><ul>
+<li><a href="#31-first-stage-maximization">3.1 First stage: maximization</a></li>
+<li><a href="#32-second-stage-minimization">3.2 Second stage: minimization</a></li>
+</ul>
+</li>
 <li><a href="#4-numerical-experiments">4. Numerical Experiments</a><ul>
 <li><a href="#31-example-1-results">3.1 Example 1 (results)</a></li>
 <li><a href="#32-example-2-results">3.2 Example 2 (results)</a></li>
@@ -673,13 +677,18 @@ $$</p>
 <p>Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...</p>
 <h2 id="3-optimization-software-walkthrough">3. Optimization Software Walkthrough</h2>
 <p>As aforementioned, the core gear is based on the SQP method. In this section, the software implementation considerations and the previously introduced mathematical concepts are discused. </p>
-<p>It is well known that <em>chevishev approximation problem (CAP)</em> is one of the first examples shown to understand the gears behind the <em>semi-infinite programming (SIP)</em> problems. Looking at the equation $ \eqref{chebyshevproblem} $, it is seen that its nuts and bolts are keep together in two stages: a maximization stage that looks for the biggest difference among all the approximation interval, and a second stage that takes the lowest difference while modifying the approximation function parameters. In fact, this mechanism it is employed in the software optimization tool implementation <a href="#ref1">[1]</a>. </p>
-<p>The software tool solves semi-infinite programming problems such as the described in $ \eqref{def-sip} $. The previously mentioned reformulation consist in to think the semi-infinite constraint $ g $ as a first-stage maximization problem with a fixed $ x $, such as the core idea in <em>CAP</em>. </p>
-<p>Moreover, a domain set $ \Omega $ discretization is employed to perform piecewise quadratic and cubic approximations to perform the maximization process. In mathematical terms the semi-infinite constraint $ g $ in problem $ \eqref{def-sip} $ should look like as this:</p>
+<p>It is well known that <em>chevishev approximation problem (CAP)</em> is one of the first examples shown to understand the gears behind the <em>semi-infinite programming (SIP)</em> problems. Looking at the equation $ \eqref{chebyshevproblem} $, it is seen that its nuts and bolts are keep together in two stages: a maximization stage that looks for the biggest difference among all the approximation interval, and a second stage that takes the lowest difference while modifying the approximation function parameters. In fact, this mechanism is employed in the software optimization tool implementation <a href="#ref1">[1]</a>.</p>
+<h3 id="31-first-stage-maximization">3.1 First stage: maximization</h3>
+<p>The software tool solves iteratively semi-infinite programming problems such as the described in $ \eqref{def-sip} $, after doing two major problem reformulations in the first stage at each iteration. </p>
+<p>First, perform a piecewise quadratic or cubic approximation of $ g $ over a discretizion of the domain set $ \Omega $. Then, reformulates each semi-infinite constraint $ g $ with a fixed $ x $ into a maximization problem, such as the core idea in <em>CAP</em> $ \eqref{chebyshevproblem} $. </p>
+<p>In mathematical terms the semi-infinite constraint $ g $ in problem $ \eqref{def-sip} $ should look like as this:</p>
 <p>$$
   \max_{w \in \hat{\Omega}} \; \hat{g}(x, w) \leq 0, \; x = c, \; |\hat{\Omega}| \in \bb{N} 
 $$</p>
-<p>where $ \hat{\Omega} \subset \Omega $ is the discretization of $ \Omega $ that is provided as input to the software tool (e.g. a user defined grid), $ \hat{g} $ is a piecewise quadratic and cubic approximation of the original $ g $ and $ c \in K $, with $ \Omega $, $ g $ and $ K $ defined as in $ \eqref{def-sip} $.</p>
+<p>where $ \hat{\Omega} \subset \Omega $ is an user provided discretization of $ \Omega $ (e.g. an user defined grid), $ \hat{g} $ is a piecewise quadratic and cubic approximation of the original $ g $ and $ c \in K $, with $ \Omega $, $ g $ and $ K $ defined as in $ \eqref{def-sip} $.</p>
+<p>By applying this reformulations, the original problem with infinitely constraints was translated into a problem that has finite and piecewise polinomial constraints. Once the maximization is computed, the result is passed to a constrained non-linear solver that will perform the minimization stage.</p>
+<h3 id="32-second-stage-minimization">3.2 Second stage: minimization</h3>
+<p>The minimization stage is perfomed in a constrained non-linear solver that executes an SQP optimization algorithm, whose details were discussed in previous sections. This minimization problem as commented before is composed of the original objective function $ f $ in $ \eqref{def-sip} $ and a new constraint set made of the result computed in the maximization stage. </p>
 <h2 id="4-numerical-experiments">4. Numerical Experiments</h2>
 <p>The numerical experiments were performed to approximate 2-dimensional and 3-dimensional functions. For each example a two tile figure is provided. The left figure is an error plot that shows the difference between the CAP-SIP approximation and the target function. </p>
 <p>The 2-dimensional plot is rotated around the <em>z-axis</em> to appreciate the approximation from every side. On the other hand, as 3-dimensional plots belongs to 4th dimension, the 3-dimensional levels are plotted and this is the actual animation of those pictures.</p>
@@ -978,7 +987,7 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 <h2 id="6-conclusions">6. Conclusions</h2>
 <p>The software implementation employed to compute the numerical experiments actually uses a reformulation that has the same idea as <em>CAP</em>. A good technique to solve <em>SIP</em> it is related to a good problem's reformulation. In order to gain computing time, it should be good to adapt the implementation to the particular problem. Providing an elaborate and adapatative discretization in order to obtain a better piecewise cubic and quadratic approximation, could improve the results.</p>
 <h2 id="references">References</h2>
-<p><strong id="ref1">[1]</strong> MathWorks - https:// www.mathworks.com /help/optim/ug/fseminf.html  <br>
+<p><strong id="ref1">[1]</strong> MathWorks - <a href="https://www.mathworks.com/help/optim/ug/fseminf.html">https:// www.mathworks.com /help/optim/ug/fseminf.html</a>
 <strong id="ref2">[2]</strong> Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)  <br>
 <strong>[3]</strong> Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006) <br>
 <strong id="ref4">[4]</strong> Reemtsen R., Discretizations Methods for the Solutions of Semi-
@@ -1010,4 +1019,4 @@ pp. 85-103.  <br>
       content.classList.remove("column-content");
     } 
   </script>
-</html>Generated with NeatPosts by LogicFoundries </br>Last updated: 2022-10-16 21:54:30.533307
+</html>Generated with NeatPosts by LogicFoundries </br>Last updated: 2022-10-17 16:23:54.181348
