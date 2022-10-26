@@ -504,9 +504,10 @@ Given the point $ x $ and the active set $ \cc{A}(x) $ $ = $ $ \cc{E} $ $ \cup $
 Finally, the _first-order necessary conditions_ are given in the following theorem. This conditions are often known as _Kuhn-Karush-Tucker Condtions_ or _KKT Conditions_ for short.
 
 **Theorem 2.3.2**{: #thrm-kkt } _(First-Order Necessary Conditions)_  
-Suppose that $ x^\star $ is a local solution of $ \eqref{eq-gralproblem} $, that the functions $ f $ and $ g_i $ are continuously differentiable, and that the LICQ holds  at $ x^\star $. Then there is a Lagrange multiplier vector $ \lambda^\star $, with components $ \lambda_{i}^{\star} $,  $ i \in \cc{E} \cup \cc{I} $, such that the following conditions are satisfied at $ (x^\star, \lambda^\star) $:
+Suppose that $ x^\star $ is a local solution of $ \eqref{eq-gralproblem} $, that the functions $ f $ and $ g_i $ are continuously differentiable, and that the LICQ holds at $ x^\star $. Then there is a Lagrange multiplier vector $ \lambda^\star $, with components $ \lambda_{i}^{\star} $,  $ i \in \cc{E} \cup \cc{I} $, such that the following conditions are satisfied at $ (x^\star, \lambda^\star) $:
 
 $$
+\begin{equation}
 \displaylines {
   \nabla_x \cc{L}(x^\star, \lambda^\star) & = 0, \newline
   \qquad \;                 c_i(x^\star)  & = 0, \quad \forall i \in \cc{E}, \newline 
@@ -514,21 +515,128 @@ $$
   \qquad \qquad          \lambda^\star & \geq 0, \quad \forall i \in \cc{I}, \newline
   \quad \lambda^\star        c_i(x^\star) & = 0, \quad \forall i \in \cc{E} \cup \cc{I}. \quad \Box
 }
+\label{kkt-conditions}
+\end{equation}
 $$
 
-### 2.4 Quadratic programming
-Quadratic programming is a topic within numerical optimization that deeps on the techniques to optimize linear-constrainded cuadratic polynomials. 
+3. SQP Method and Software Implementation
+--------------------------------------------------------------------------------------
+_Sequential Quadratic Programming_ is an iterative numerical optimization method employed to compute constrained optimization problems. At each step it solves a _Quadratic Programming (QP)_ suproblem throught its the KKT conditions $ \eqref{kkt-conditions} $, that as commented before gives optimality necessary conditions for constrained optimization problems. Additionally, also applies a _quasi-Newton BFGS_ method that as commented before ensures a super-linear convergence by accumulating function's second-order behavior information.
 
-### 2.5 Sequential Quadratic Programming method SQP
-Existen varios métodos SQP, el IQP y el EQP. Actualmente la librería emplea un método...
+In this section the _SQP_ will be presented and how the software tool implements the technique to solve this kind of problems. The method's implementation and the mathematical details presented were taken from official documentation [[1b]](#ref1b). 
 
-3. Optimization Software Walkthrough
+The method at each iteration it is similar to the Newthon's method presented before, in the way that each time the optimal value is searched with the help of an approximation made to the objective and contrain functions. This approximation is made to the Hessian of the Lagrangian function through a quasi-Newton method. Then, with this information a QP problem is formulated and solved in order to obtain a search direction as described in Newthon's method. Finally, this process is repeated until a threshold criteria is met.
+
+This process at each iteration has the following stages, presented in the next subsections as are executed in the software implementation:
+
+1. Hessian Matrix Update
+2. Quadratic Programming solution
+3. Initialization
+4. Line Search and Merit Function
+
+### 3.1 Hessian Matrix Update
+In each loop unit an approximation to the Hessian's Lagrangian function is made with the the following BFGS expression $ \eqref{eq-hkk} $ presented in previous chapters:
+
+$$
+\begin{equation}
+  H_{k + 1} = (I - \rho_{k} s_{k} y_{k}^T) H_k (I - \rho_{k} y_{k} s_{k}^T) + \rho_{k} s_{k} s_{k}^T
+\end{equation}
+$$
+
+This update is made while trying to keep the matrix $ H_{k + 1} $ positive definite in order to follow the convergence recomendations proposed by method authors. This positive- definiteness is achieved when $ y_k^T s_k > 0 $. If this condition is not met, the most negative element of $ y_k $ is halved iteratively until the dot product be positive. If the value is not positive after this procedure, $ y_k $ is updated with the following expression:
+$$
+  y_k = y_k + w v_i
+$$
+where
+$$
+\color{red}{
+\displaylines{
+  v_i = \nabla g_i(x_{k+1}) g_i(x_{k+1}) − \nabla g_i(x_k) g_i(x_k) \newline
+  \txt (q_k)_i w < 0 and (q_k)_i (s_k)_i < 0, i=1,...,mvi=0
+}
+}
+$$
+
+### 3.2 Quadratic Programming solution
+As commented at the beginning of this chapter, at each iteration a _Quadratic Programming (QP)_ problem is formulated and solved. QP is a topic within numerical optimization that studies techniques to optimize linear-constrainded cuadratic polynomials:
+
+$$
+\begin{equation}
+\displaylines {
+  \min_{x} \;    q(x) &    = \frac{1}{2} x^T G x + x^T c \newline
+  \txt{s.t} a_{i}^T x &    = b_i, \quad i \in \cc{E},    \newline
+  \quad \quad  a_{i}^T x & \geq b_i, \quad i \in \cc{I}.
+}
+\label{def-qp}
+\end{equation}
+$$
+
+Within the literature there are many techniques to solve this special kind of approximation problems that includes _trust region_, _linear search_, _interior point_ and _active set_ methods. The technique employed in the software tool is based on the _active set_ method. Active set methods identifies which inequality constraints are active at each iteration, that means to identify the constraint set. This reduces the complexity of the problem since active constraints are treated as equality constraints that are more easy to handle.
+
+The solution of this problem involves two stages. The first stage consists in to stablish an starting feasible point. The second stage consists in iteratively update this point in order to reach the optimality conditions. In this process an active set $ \overline{A}_k $ of constraints are mantained.
+
+At each stage a search direction $ \hat{d}_k $ is mantained that depends on the set $ \overline{A}_k $ that also conform a space basis. Since this is an active set method, $ \hat{d}_k $ is computed always over the constraint set boundaries (active constraints). Then, a feasible subspace $ Z_k $ for $ \hat{d}_k $ is built with a set of vectors that are orthongonal to the active set $ \overline{A}_k $, i.e. $ \overline{A}_k Z_k = 0 $. When $ \hat{d}_k $ is computed with $ Z_k $ is warranteed that the next $ \hat{d}_k $ will lie on the constraint boundaries.
+
+The matrix $ Z_k $ is built from the last $ m - l $ columns of the matrix $ \overline{A}^T_k $ QR decomposition, where $ l $ is the number of active constraints:
+$$
+  Z_k = Q[:, l + 1 : n]
+$$
+where
+$$
+  Q^T A^{T}_k = 
+ \begin{bmatrix}
+  R \\\
+  0 \\\
+ \end{bmatrix}
+$$
+
+When the subspace $ Z_k $ is found, a new search direction $ \hat{d}_k $ is coumputed such that minimizes the current quadratic problem at iteration $ k $. This means that $ \hat{d}_k \in gen(Z_k) $, where $ gen(Z) $ denotes the subspace generated by $ Z $.
+
+Knowing that $ \hat{d}_k = Z_k p $ is dimentionally consistent for the QP, the objective function in $ \eqref{def-qp} $ can be written in terms of $ Z_k $ and $ p $ as:
+$$
+\begin{equation}
+  q(p) = \frac{1}{2} p^T Z^T_k H Z_k p + c^T Z_k p.
+  \label{sqp-quad}
+\end{equation}
+$$
+
+Then, the derivative respect to $ p $ gives:
+$$
+ \nabla q(p) = Z^T_k H Z_k p + Z^T_k c.
+$$
+
+Given that the matrix $ H $ is postitive definite (as will always happen for the presented SQP method), the minimum of $ \eqref{sqp-quad} $ will be found at $ \nabla q(p) = 0 $, that is:
+$$
+  Z^T_k H Z_k p = - Z^T_k c.
+$$
+
+This will let the following iteration step to be taken:
+$$
+  x_{k+1} = x_k + \alpha \hat{d}_k,  \txt{where} d_k = Z_k p.
+$$
+
+Because the objective function has quadratic form, the step factor $ \alpha $ can be chosen from two options. The first involves $ | \alpha | = 1 $ in the same direction of $ \hat{d}_k $. If such $ \alpha $ exists, that is the solution for the QP. If not, $ | \alpha < 1 $ must be selected and a new active constraint is added to the active set $ \overline{A} $.
+
+Finally, if $ n $ constraints satisfy the _LICQ_ definition and the solution point is far from a solution, Lagrange multipliers from $ \eqref{eq-lagrangian} $ are computed from the following nonsingular linear system of equations:
+$$
+  A^T_k \lambda_k = c + H x_k
+$$
+
+If $ \lambda_k > 0 $ for every $ \lambda_i $ that solves the previous system of equations, $ x_k $ is the solution of the QP $ \eqref{def-qp} $; else, that $ \lambda_i $ is discarded, the set $ \overline{A} $ is modified and a new iteration is started.
+
+
+### 3.3 Initialization
+### 3.4 Line Search and Merit Function
+
+
+
+4. Optimization Software Walkthrough
 --------------------------------------------------------------------------------------
 As aforementioned, the core gear is based on the SQP method. In this section, the software implementation considerations and the previously introduced mathematical concepts are discused. 
 
 It is well known that _chevishev approximation problem (CAP)_ is one of the first examples shown to understand the gears behind the _semi-infinite programming (SIP)_ problems. Looking at the equation $ \eqref{chebyshevproblem} $, it is seen that its nuts and bolts are keep together in two stages: a maximization stage that looks for the biggest difference among all the approximation interval, and a second stage that takes the lowest difference while modifying the approximation function parameters. In fact, this mechanism is employed in the software optimization tool implementation [[1]](#ref1).
 
-### 3.1 First stage: maximization
+### 4.1 First stage: maximization
 
 The software tool solves iteratively semi-infinite programming problems such as the described in $ \eqref{def-sip} $, after doing two major problem reformulations in the first stage at each iteration. 
 
@@ -544,8 +652,18 @@ where $ \hat{\Omega} \subset \Omega $ is an user provided discretization of $ \O
 
 By applying this reformulations, the original problem with infinitely constraints was translated into a problem that has finite and piecewise polinomial constraints. Once the maximization is computed, the result is passed to a constrained non-linear solver that will perform the minimization stage.
 
-### 3.2 Second stage: minimization
+### 4.2 Second stage: minimization
 The minimization stage is perfomed in a constrained non-linear solver that executes an SQP optimization algorithm, whose details were discussed in previous sections. This minimization problem is composed of the original objective function $ f $ in $ \eqref{def-sip} $ and a new constraint set made of the results computed in the maximization stage.
+
+### 4.3 Software implementation summary
+This two stages are condensed in the following algorithm that composes the actual implementation of the software tool. 
+
+**Algorithm 3.3.1** _fseminf implementation overview_
+
+1. piece wise approximation, then maximizes
+2. compute the minimization with SQP $ \min f(x) \txt{s.t.} c(x) $ where c(x) is expanded with the results of step 1.
+3. check for any stoping criteria, if not step 4.
+4. update constraints and Langrange multipliers.
 
 
 4. Numerical Experiments
@@ -665,15 +783,19 @@ After defining the approximation problem in terms of SIP, only left to pour the 
 
 6. Conclusions
 --------------------------------------------------------------------------------------
-The software implementation employed to compute the numerical experiments actually uses a reformulation that has the same idea as _CAP_. A good technique to solve _SIP_ it is related to a good problem's reformulation. In order to gain computing time, it should be good to adapt the implementation to the particular problem. Providing an elaborate and adapatative discretization in order to obtain a better piecewise cubic and quadratic approximation, could improve the results.
+The software implementation employed to compute the numerical experiments actually uses a reformulation that has the same idea that _CAP_, that is a two-stage _maximization-then-minimization_ problem. For that reason, the reformulation made in [[7]](#ref7) can be ommitted and instead use a computer software solution that handles the problem directly such as in the actual software tool implementation of _fseminf_. Avoiding this double reformulation reduces the reformulation overhead that results in better computing times.
+
+A good technique to solve _SIP_ it is related to a good problem's reformulation. . Providing an elaborate and adapatative discretization in order to obtain a better piecewise cubic and quadratic approximation, could improve the results.
 
 ## References
-**[1]**{: #ref1} MathWorks - [https:// www.mathworks.com /help/optim/ug/fseminf.html](https://www.mathworks.com/help/optim/ug/fseminf.html)
+**[1]**{: #ref1} MathWorks - [fseminf - Algorithms (SQP)](https://www.mathworks.com/help/optim/ug/fseminf.html)
+**[1b]**{: #ref1b} Mathworks - [Constrained Nonlinear Optimization Algorithms](https://www.mathworks.com/help/optim/ug/constrained-nonlinear-optimization-algorithms.html)
+**[1c]**{: #ref1c} MathWorks - []
 **[2]**{: #ref2} Numerical Optimization Jorge Nocedal, Stephen Wright - (2006)    
 **[3]** Numerical optimization theoretical and practical - J. Bonnans, J. Gilbert, C. Lemarechal, C. Sagastizábal - (2006)   
 **[4]**{: #ref4} Reemtsen R., Discretizations Methods for the Solutions of Semi-
 In nite Programming Problems, J. Optim. Theory Appl, 71 (1991),
 pp. 85-103.    
 **[6]** Nocedal   
-**[7]** Moradito
+**[7]**{: #ref7} Moradito
 **[8]**{: #ref8} Carlos Gamboa
