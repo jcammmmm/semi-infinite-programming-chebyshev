@@ -23,17 +23,17 @@ $$
 # Numerical computation of function approximations with semi-infinite programming
 
 >> ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the software tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies on Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The followings sections describe the SQP techniques and core concepts that makes the method. In the final section, the proposed problems in initial sections are computed.  
-> KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
+> KEYWORDS: chebyshev's approximation, semi-infinite programming, sequential quadratic programming, constrained optimization.
 
 ## Table of Contents
 [TOC]
 
 1. Problem's definition
 --------------------------------------------------------------------------------------
-In this section we will provide the necessesary definitions in order to put the _Chebyshev's approximation problem_ (CAP) in terms of a _semi-infinite programming problem_ (SIP).
+In this section we will provide the necessary definitions in order to put the _Chebyshev's approximation problem_ (CAP) in terms of a _semi-infinite programming problem_ (SIP).
 
 ### 1.1 Chebyshev approximation problem _(CAP)_
-The _Chebyshev approximation problem_ _(CAP)_ can be formulated in serveral ways, one of them is described as the following _minimax_ problem:
+The _Chebyshev approximation problem_ _(CAP)_ can be formulated in several ways, one of them is described as the following _minimax_ problem:
 $$
 \begin{equation}
   \min_{x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
@@ -46,7 +46,7 @@ where
   $ d: \Omega \mapsto \mathbb{R} $ and
   $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. 
 
-Here, $ d(w) $ and $ F(x, w) $ represents the function to aproximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize and $ w $ is the function input or variables. 
+Here, $ d(w) $ and $ F(x, w) $ represents the function to approximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize and $ w $ is the function input or variables. 
   
 Note that the approximation error given by $ |d(w) - F(x, w)| $ is not squared and is computed linearly, and it is performed in every point of the approximation interval $ \Omega $. In fact, each _semi-infinite constraint_ represent each possible function value of $ d $ and $ F $ over the approximation interval $ \Omega $.
 
@@ -296,9 +296,7 @@ g(x + h) = g(x) + g'(x)h + R(x, h)
 \end{equation}
 $$
 
-Where $ h $ is a step vector from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder o
-
-f this linear approximation. Then, with this approximation the root can be found as:
+Where $ h $ is a step vector from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
 $$
 \begin{equation}
 \displaylines{
@@ -426,7 +424,7 @@ def BFGS(x0, eps, H0):
   return Hkk
 ```
 
-### 2.2 Lagrange Multipliers
+### 2.3 Lagrange Multipliers
 This is one of the fundamental techniques of constrained optimization. Here the technique is reviewed incrementally, starting from one equality constraint, then with several equality constraints and finally with inequality constraints.
 
 This method appears naturally when the unconstrained problem $ \min_{x \in \bb{R}} f(x) $ becomes constrained by one equality: 
@@ -491,17 +489,17 @@ $$
 \end{equation}
 $$
 
-### 2.3 KKT optimality conditions
+### 2.4 KKT optimality conditions
 Known as _First-Order Necessary Conditions_, are conditions concerned to the gradients of a local solution $ x^\star $. As such, they are statements that must be true for a given $ x^\star $. At its core, this conditions are based on a step-wise strategy when the function value is optimized.
 
-This strategy states that if you cannot find a step vector $ s $ such that $ \nabla f(x) s < 0 $ and also $ \nabla g_i(x) s \geq 0 $ for the general problem $ \eqref{eq-gralproblem} $, it means that you have reached an optimal value bacause the function cannot get a lower value while satisfying the constraints. In fact, geometrically this point is met when both $ \nabla g_i(x) $ and $ \nabla f(x) $ point to the same direction: $ \nabla f(x) = \lambda \nabla g_i(x) $ for $ \lambda \in \bb{R} $. That is $ \nabla_{x} \cc{L}(x, \lambda) $, the _Lagrangian_ gradient respect $ x $ of $ \eqref{eq-lagrangian} $.
+This strategy states that if you cannot find a step vector $ s $ such that $ \nabla f(x) s < 0 $ and also $ \nabla g_i(x) s \geq 0 $ for the general problem $ \eqref{eq-gralproblem} $, it means that you have reached an optimal value because the function cannot get a lower value while satisfying the constraints. In fact, geometrically this point is met when both $ \nabla g_i(x) $ and $ \nabla f(x) $ point to the same direction: $ \nabla f(x) = \lambda \nabla g_i(x) $ for $ \lambda \in \bb{R} $. That is $ \nabla_{x} \cc{L}(x, \lambda) $, the _Lagrangian_ gradient respect $ x $ of $ \eqref{eq-lagrangian} $.
 
 As this method is based on _first-order approximations_ i.e. _gradients_, a qualification must be satisfied in order to capture correctly the geometric features of the neighborhood of $ x $. This qualification is provided in the following definition [[2]](#ref2).
 
 **Definition 2.3.1** _(LICQ)_{: #def-licq}   
 Given the point $ x $ and the active set $ \cc{A}(x) $ $ = $ $ \cc{E} $ $ \cup $ $ \lbrace i \in \cc{I} $ $ | $ $ c_i(x) = 0 \rbrace $, we say that the _linear independence constraint qualification_ (LICQ) holds if the set of active constraint gradients $ \lbrace \nabla c_i(x), \; i \in \cc{A}(x) \rbrace $ is linearly independent. $ \Box $
 
-Finally, the _first-order necessary conditions_ are given in the following theorem. This conditions are often known as _Kuhn-Karush-Tucker Condtions_ or _KKT Conditions_ for short.
+Finally, the _first-order necessary conditions_ are given in the following theorem. This conditions are often known as _Kuhn-Karush-Tucker Conditions_ or _KKT Conditions_ for short.
 
 **Theorem 2.3.2**{: #thrm-kkt } _(First-Order Necessary Conditions)_  
 Suppose that $ x^\star $ is a local solution of $ \eqref{eq-gralproblem} $, that the functions $ f $ and $ g_i $ are continuously differentiable, and that the LICQ holds at $ x^\star $. Then there is a Lagrange multiplier vector $ \lambda^\star $, with components $ \lambda_{i}^{\star} $,  $ i \in \cc{E} \cup \cc{I} $, such that the following conditions are satisfied at $ (x^\star, \lambda^\star) $:
@@ -670,7 +668,7 @@ It is well known that _chevishev approximation problem (CAP)_ is one of the firs
 
 The software tool solves iteratively semi-infinite programming problems such as the described in $ \eqref{def-sip} $, after doing two major problem reformulations in the first stage at each iteration. 
 
-First, perform a piecewise quadratic or cubic approximation of $ g $ over a discretizion of the domain set $ \Omega $. Then, reformulates each semi-infinite constraint $ g $ with a fixed $ x $ into a maximization problem, such as the core idea in _CAP_ $ \eqref{chebyshevproblem} $. 
+First, perform a piecewise quadratic or cubic approximation of $ g $ over a discretization of the domain set $ \Omega $. Then, reformulates each semi-infinite constraint $ g $ with a fixed $ x $ into a maximization problem, such as the core idea in _CAP_ $ \eqref{chebyshevproblem} $. 
 
 In mathematical terms the semi-infinite constraint $ g $ in problem $ \eqref{def-sip} $ should look like as this:
 
@@ -680,20 +678,20 @@ $$
 
 where $ \hat{\Omega} \subset \Omega $ is an user provided discretization of $ \Omega $ (e.g. an user defined grid), $ \hat{g} $ is a piecewise quadratic and cubic approximation of the original $ g $ and $ c \in K $, with $ \Omega $, $ g $ and $ K $ defined as in $ \eqref{def-sip} $.
 
-By applying this reformulations, the original problem with infinitely constraints is translated into a problem that has finite and piecewise polinomial constraints. Once the maximization is computed, the result is passed to a constrained non-linear solver that will perform the minimization stage.
+By applying this reformulations, the original problem with infinitely constraints is translated into a problem that has finite and piecewise polynomial constraints. Once the maximization is computed, the result is passed to a constrained non-linear solver that will perform the minimization stage.
 
 ### 4.2 Second stage: minimization
-The minimization stage is perfomed in a constrained non-linear solver that executes an SQP optimization algorithm, whose details were discussed in previous sections. This minimization problem is composed of the initial $ \eqref{def-sip} $ objective function $ f $  and a new constraint set made of the results computed in the maximization stage.
+The minimization stage is performed in a constrained non-linear solver that executes an SQP optimization algorithm, whose details were discussed in previous sections. This minimization problem is composed of the initial $ \eqref{def-sip} $ objective function $ f $  and a new constraint set made of the results computed in the maximization stage.
 
 ### 4.3 Software implementation summary
 This two stages are condensed into the following algorithm [[1]](#ref1) that composes the actual implementation of the software tool. 
 
 **Algorithm 3.3.1** _MATLAB's fseminf implementation overview_
 
-1. Peform a target function piecewise approximation, then maximize the biggest difference against the approximator function. Accumulate all the results.
+1. Perform a target function piecewise approximation, then maximize the biggest difference against the approximation function. Accumulate all the results.
 2. Solve the minimization problem with SQP.
 3. Check for step size threshold, if not go to step 4.
-4. Update constraints and Langrange multipliers.
+4. Update constraints and Lagrange multipliers.
 
 
 5. Numerical Experiments
@@ -726,7 +724,7 @@ d     |SQP n | DM n | EA n  | SQP e   | DM e    | EA e    |
 
 >> **Table1**. The results of the method exposed in this document compared to other authors.
 
-Now, some clarifications about the meaning of $ e $. The technique employed to compute the results is based in the _minimax_ problem $ \eqref{chebyshevproblem} $. Then the maximization part of the problem was refomulated into the artificial variable $ t $ in $ \eqref{capsip} $, being now $ t $ the objective function. The value of $ e $ is the minimal value that $ f(x, t) = t $ holds after the minimization process, this means that $ e $ is the lower difference among the maximum differences that were obtained while perfoming the optimization process. This value can be seen in the brightests zones within the 2-dimensional error plots shown in the left side of each figure. Moreover, the value that appears in the table is the maxiumum value that the colorbar displays.
+Now, some clarifications about the meaning of $ e $. The technique employed to compute the results is based in the _minimax_ problem $ \eqref{chebyshevproblem} $. Then the maximization part of the problem was reformulated into the artificial variable $ t $ in $ \eqref{capsip} $, being now $ t $ the objective function. The value of $ e $ is the minimal value that $ f(x, t) = t $ holds after the minimization process, this means that $ e $ is the lower difference among the maximum differences that were obtained while performing the optimization process. This value can be seen in the brightest zones within the 2-dimensional error plots shown in the left side of each figure. Moreover, the value that appears in the table is the maximum value that the colorbar displays.
 
 ### 5.2 Example 2 _(results)_   
 For this problem instance the function $ d(w_1, w_2) = (1 + w_1)^{w_2} $ is approximated within the interval $ [0, 1] \times [1, 2.5] $. The **Figure2** shows the approximation achieved with a 2nd-degree polynomial in $ 27 $ iterations and with a minimum error $ e = 0.1776 $: 
@@ -734,7 +732,7 @@ For this problem instance the function $ d(w_1, w_2) = (1 + w_1)^{w_2} $ is appr
 ![example2](./results/ex2.gif)
 > **Figure3:** 2nd-degree polynomial approximation for $ d(w_1, w_2) = (1 + w_1)^{w_2} $
 
-As with the previous problem, next figure shows the approximation with a 7th-degree polynomial. Note that the patterns formed in error plot are similar to those displayed in previous example, due to the polynomial's degree. Additionaly, check that the error also improves.
+As with the previous problem, next figure shows the approximation with a 7th-degree polynomial. Note that the patterns formed in error plot are similar to those displayed in previous example, due to the polynomial's degree. Additionally, check that the error also improves.
 
 ![example2a](./results/ex2a.gif)
 > **Figure4:** 7th-degree polynomial approximation for $ d(w_1, w_2) = (1 + w_1)^{w_2} $
@@ -801,12 +799,12 @@ d     |SQP n | DM n | SQP e   | DM e    |
 
 > **Table4:** Results comparative.
 
-Only left to review and compare the iteration complexity in each one of the methods _SQP_ used in the current work, _DM_ used in [[4]](#ref4) and _AE_ in [[8]](#ref8). This comparation will be the object of a future document.
+Only left to review and compare the iteration complexity in each one of the methods _SQP_ used in the current work, _DM_ used in [[4]](#ref4) and _AE_ in [[8]](#ref8). This comparative will be the object of a future document.
 
 
 6. Conclusion
 --------------------------------------------------------------------------------------
-The software implementation employed to compute the numerical experiments uses a reformulation that has the same idea that _CAP_, that is, a two-stage _maximization-then-minimization_ problem. For that reason, the reformulation made in $ \eqref{capsip} $ can be ommitted and instead of that, a customized computer software solution can be used in order to handle the problem directly. Avoiding this double reformulation reduce the overhead that can result in better computing times.
+The software implementation employed to compute the numerical experiments uses a reformulation that has the same idea that _CAP_, that is, a two-stage _maximization-then-minimization_ problem. For that reason, the reformulation made in $ \eqref{capsip} $ can be avoided and instead of that, a customized computer software solution can be used in order to handle the problem directly. This will reduce the reformulation overhead that can result in better computing times.
 
 ## References
 **[1]**{: #ref1} MathWorks - [fseminf - Algorithms (SQP)](https://www.mathworks.com/help/optim/ug/fseminf.html)   

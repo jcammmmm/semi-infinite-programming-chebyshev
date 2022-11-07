@@ -1,0 +1,1152 @@
+$$
+\newcommand{\bb}[1]{\mathbb{#1}}
+\newcommand{\cc}[1]{\mathcal{#1}}
+\newcommand{\txt}[1]{\;\;\textrm{#1}\;\;}
+\newcommand{\problemUnconstr}{\min f(x)\; \txt{s.t.}\; x \in \bb{R}^n}
+\newcommand{\problemMinimizeSingle}[2]{\min #1\; \txt{s.t.}\; #2 }
+\newcommand{\problemMinimizeMulti}[2]{
+  \displaylines{
+    \min #1 \newline
+    \txt{s.t.} #2
+  }
+}
+\newcommand{\sctnot}[2]{
+  #1\mathrm{e}{#2} 
+}
+$$
+
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>CAP-SIP</title>
+
+    <!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <!-- REVEAL JS STYLES- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/black.css">    
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+
+    <!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <!-- CUSTOM STYLES- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <link rel="stylesheet" href="dist/neatposts.css">
+    <style type="text/css">
+      p { 
+        text-align: left; 
+      }
+      h1, h2, h3 {
+        text-align: left;
+      }
+      section {
+        font-size: xx-large;
+      }
+      table {
+        color: white;
+      }
+    </style>
+    
+    <!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <!-- MATHJAX JS STYLES -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script> 
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-chtml.js"></script>
+    
+    <script>
+      /***********************************************************************
+       * MATHJAX CONFIGURATION                                               *
+       ***********************************************************************/
+      function overflowWrap(elem) {
+        let wrapper = document.createElement('div');
+        wrapper.setAttribute('style', 'overflow-x: scroll;');
+        wrapper.appendChild(elem.cloneNode(true));
+        elem.parentElement.replaceChild(wrapper, elem);
+      }
+  
+      // http://docs.mathjax.org/en/latest/options/input/tex.html
+      window.MathJax = {
+        loader: {
+          // http://docs.mathjax.org/en/latest/input/tex/extensions/tagformat.html
+          load: [
+            '[tex]/tagformat'
+          ]
+        },
+        tex: {
+          inlineMath: [['$', '$']],
+          // https://docs.mathjax.org/en/v3.2-latest/input/tex/eqnumbers.html
+          tags: 'ams',
+          packages: {'[+]': ['tagformat']},
+          tagformat: {
+            number: (n) => n.toString(),
+            tag:    (tag) => '(' + tag + ')',
+            id:     (id) => '' + id.replace(/\s/g, '_'),
+            url:    (id, base) => base + '#' + encodeURIComponent(id),
+          }
+        },
+       startup: {
+        /***********************************************************************
+         * OVERFLOW FIX                                                        *
+         ***********************************************************************/
+        }
+      }
+    </script>
+	</head>
+
+
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+
+<!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+<!-- BEGIN PRESENTATION - -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+<!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
+<!--|1|========================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    # 1. Problem's definition
+  </textarea>
+</section>
+
+<!--|1.1|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.1 Chebyshev approximation problem _(CAP)_
+    The _Chebyshev approximation problem_ _(CAP)_ can be formulated in several ways, one of them is described as the following _minimax_ problem:
+    $$
+      \begin{equation}
+      \min_{x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
+      \label{chebyshevproblem}
+      \end{equation}
+    $$
+
+    where 
+    $ K_{n-1} \subseteq \mathbb{R}^{n-1} $ and
+    $ \Omega \subseteq \mathbb{R}^{m} $ are non-empty and compact sets, 
+    $ d: \Omega \mapsto \mathbb{R} $ and
+    $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. 
+  </textarea>
+</section>
+
+<!--|1.2|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.2 Semi-infinite programming problem _(SIP)_
+    In general terms, a SIP is an optimization problem described as follows:
+
+    $$
+    \begin{equation}
+    \displaylines{
+      \min f(x) \newline
+      \textrm{s.t.} \\; g(x, w) \leq 0, \\; x \in K, \\; w \in \Omega, \\; |\Omega| = \infty 
+    }
+    \label{def-sip}
+    \end{equation}
+    $$
+    
+    where 
+      $ \Omega \subseteq \bb{R}^{n-1} $, 
+      $ K \subseteq \bb{R}^{m} $, and
+      $ f: K \mapsto \bb{R} $ and
+      $ g: K \times \Omega \mapsto \bb{R} $ are smooth functions ($ g $ will be referred as semi-infinite constraint).
+    In general, this problem definition can have a variety of constraint kinds, i.e. equality, inequality and several semi-infinite constraints, but at least one must be semi-infinite in order to have a SIP. 
+  </textarea>
+</section>
+
+<!--|1.3|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.3 CAP in terms of SIP
+    Now, problem $ \eqref{chebyshevproblem} $ can be expressed without loss of generality [[7]](#ref7) in the following terms:
+    $$
+    \begin{equation}
+    \displaylines{
+      \min \quad f(x) := t \txt{with} \\; x := (\tilde{x}, t)\;  \newline
+      \txt{s.t.} \quad \tilde{x} \in K^{n-1},\\; t \in \mathbb{R}, \newline
+      \qquad \quad \\; g(x, w) := |d(w) - F(\tilde{x}, w)| \leq t ,\\; w \in \Omega. \newline
+    }
+    \label{capsip}
+    \end{equation}
+    $$
+  </textarea>
+</section>
+
+
+<!--|1.4|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.4 Approximation function definition
+    The problem shown in $ \eqref{capsip} $, requires that both _approximation function_ $ F(x, w) $ and _target function_ $ d(w) $ must be provided as problem's input. From now, the next definition will provide the function employed in numerical examples to approximate the example targets.
+  </textarea>
+</section>
+
+<!--|1.4|======================================================================-->
+<section data-markdown style="font-size: x-large;">
+  <textarea data-template>
+    ## 1.4 Approximation function definition
+    **Definition 1.4.1** _(Multivariate approximation)_   
+    For given $ d \in \bb{N} \cup \lbrace 0 \rbrace $, let $ F $ be the _multivariate polynomial_:
+    $$ 
+    \begin{equation}
+    \displaylines {
+      F(x, w; d) &= x^Tz(w) \newline
+      &= (x_1, .., x_{n-1})^T(z_1(w), .., z_{n-1}(w))
+    }
+    \label{multivariate-approx}
+    \end{equation}
+    $$
+
+    where $ x \in K_{n-1} $ is the polynomial coefficients tuple, $ w \in \Omega $, $ z: \Omega \mapsto K_{n-1} $ a vector function with $ \Omega \subseteq \mathbb{R}^{m} $, $ K_{n-1} \subseteq \mathbb{R}^{n-1} $, and each $ z_i $ the following monomial:
+    $$ 
+    z_i = w_1^{p_1} w_2^{p_2} ... w_{m}^{p_{m}},\\; \sum_{j=0}^{m} p_j \leq d.
+    $$
+    with $ i = 1, ..., n-1 $ and $ p_j \in \bb{N} $. $ \quad \Box $
+  </textarea>
+</section>
+
+<!--|1.5|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.5 Problem model specification
+    Aiming to employ the SIP reformulation $ \eqref{capsip} $ within the SQP framework, here we define the problem model (_objective function_, _decision variables_ and _constraints_) to feed the SQP method exposed in [section 2](#2-sqp-method). 
+    
+    **Definition 1.5.1** _(Objective function)_
+    Recalling the SIP minimization problem $ \eqref{capsip} $, the objective function for CAP is:
+    $$
+    f(\tilde{x}, t) = t
+    $$ 
+    where $ f: K_{n-1} \times \bb{R} \mapsto \bb{R}. \quad \Box $
+
+    **Definition 1.5.2** _(Decision variables)_
+    Recalling the SIP minimization problem $ \eqref{capsip} $, the decision variables for CAP are $ \tilde{x} $ and $ w $. $ \Box $
+
+  </textarea>
+</section>
+
+<!--|1.5|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.5 Problem model specification    
+    **Definition 1.5.3** _(Constraints)_
+    Recalling the SIP minimization problem $ \eqref{capsip} $, the constraints for CAP are:
+    $$
+    \displaylines{
+      \tilde{x} \in K_{n-1}, \newline
+      t \in \mathbb{R}, \newline
+      w \in \Omega, \newline
+      d(w) - F(\tilde{x}, w) \leq t  \newline
+      F(\tilde{x}, w) - d(w) \leq t
+    }
+    $$
+    where the target function $ d(w) $ is a given preset example (see next [subsection](#16-problem-instances)) and approximation function $ F(\tilde{x}, w) := F(\tilde{x}, w; d) $ as in $ \eqref{multivariate-approx} $: . Also, note that the _semi-infinite_ parameter is $ w $.
+  </textarea>
+</section>
+
+<!--|1.5|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.5 Problem model specification (cont.)
+    Note that the number of monomials $ k $ that will add up the polynomial is:
+    $$
+    \begin{equation}
+    k = \binom{m + d}{d}.
+    \label{monomnum}
+    \end{equation}
+    $$
+    Since each monomial has a coefficient and the factors involved in the dot product for $ \eqref{multivariate-approx} $ must be dimensional consistent, the coefficients tuple dimension $ dim(x) = k $, that is $ n - 1 = k $.
+  </textarea>
+</section>
+
+<!--|1.6|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 1.6 Problem instances
+    In order to compare the results of this work with [[4]](#ref4) and [[8]](#ref8), refer to CAP-SIP $ \eqref{capsip} $ and let $ F(x, w) $ as in $ \eqref{multivariate-approx} $, $ k $ as in $ \eqref{monomnum} $ and let $ d(w) $ with $ w \in \Omega \subseteq \bb{R}^m $ be any of the following approximation targets:
+  </textarea>
+</section>
+
+<!--|1.6.1|====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ### 1.6.1. Example 1
+    $$
+    \displaylines{
+      d(w) := \log(w_1 + w_2)\sin(w_1) \newline
+      w \in \Omega = [0, 1] \times [1, 2.5] \newline
+      F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2}; \newline
+      i \in \lbrace 2, 3, 4, 5, 6 \rbrace
+    } 
+    $$
+  </textarea>
+</section>
+
+<!--|1.6.2|====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ### 1.6.2. Example 2
+    $$
+    \displaylines{
+      d(w) := (1 + w_1)^{w_2} \qquad \qquad \newline
+      w \in \Omega = [0, 1] \times [1, 2.5] \newline
+      F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2}; \newline
+      i \in \lbrace 2, 3, 4, 5, 6 \rbrace
+    }
+    $$
+  </textarea>
+</section>
+
+<!--|1.6.3|====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ### 1.6.3 Example 3
+    $$
+    \displaylines{
+      d(w) := e^{(w_1^2 + w_1w_2)} \newline
+      w \in \Omega = [-1, 1] \times [-1, 1] \newline
+      F(x, w; 9) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2}; \newline
+    }
+    $$
+  </textarea>
+</section>
+
+<!--|1.6.4|====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ### 1.6.4 Example 4
+    $$
+    \displaylines{
+      d(w) = \cos(w_3 (1 + w_1))^{w_2} \newline
+      w \in \Omega = [0, 1] \times [1, 2] \times [0, 1] \newline
+      F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2} w_3^{p3} \newline
+      i \in \lbrace 2, 3, 4, 5 \rbrace
+    }
+    $$
+  </textarea>
+</section>
+
+<!--|1.6.5|====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ### 1.6.5 Example 5
+    $$
+    \displaylines{
+      d(w) = \Big| log\frac{w_1 w_2 + 1}{x_1 + 0.5} \Big| x_2^{\frac{x_3 + 1}{2}} \newline
+      w \in \Omega = [0, 1] \times [0, 1] \times [0, 1] \newline
+      F(x, w; i) = \prod_{j=1}^{k} x_j w_1^{p1} w_2^{p2} w_3^{p3} \newline
+      i \in \lbrace 2, 3, 4, 5 \rbrace
+    }
+    $$
+  </textarea>
+</section>
+
+<!--|2|========================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    # 2. Numerical Optimization Background
+  </textarea>
+</section>
+
+<!--|2.1|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.1 Newton's Method
+    The Newton's method is a numerical method that approximates the roots (i.e. $ x $ where $ f(x) $ vanishes) of a smooth function. Since this is a necessary condition for a maximizer point, this method is employed intensively within the optimization theory.
+    
+    Having the nonlinear unconstrained minimization problem $ \problemUnconstr $ one necessary condition for the optimal point $ x^\star $ is $ g(x^\star) = \nabla{f(x^\star)} = 0 $. That means we have a system of $ n $ non-linear equations that must be equal to $ 0 $ in order to minimize $ f(x) $.
+  </textarea>
+</section>
+
+<!--|2.1|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.1 Newton's Method (cont.)
+    The idea of the method is to employ a linear approximation for the point that should be the function's root. This is written as usual:
+    $$
+    \begin{equation}
+    g(x + h) = g(x) + g'(x)h + R(x, h)
+    \end{equation}
+    $$
+
+    Where $ h $ is a step vector from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
+    $$
+    \begin{equation}
+    \displaylines{
+      g(x) + g'(x)h &= 0 \newline
+      g'(x)h &= -g(x) \newline
+      h &= -\frac{g(x)}{g'(x)} \newline
+    }
+    \end{equation}
+    $$
+  </textarea>
+</section>
+
+<!--|2.2|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.2 Quasi Newton's methods (BFGS)
+    These methods are an alternative to pure _Newton's method_ to compute the zeroes of functions. They appear as a novel technique when _Jacobian_ or _Hessian_ matrices are hard to compute. The method that is currently employed within the optimization software tool employs _BFGS (Broyden–Fletcher–Goldfarb–Shanno)_ as method to find the roots. _BFGS_ has the main advantage that it does not use second derivatives to perform the optimization, for that reason it is an efficient algorithm to compute _CAP-SIP_.
+  </textarea>
+</section>
+
+<!--|2.2|"======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.2 Quasi Newton's methods (BFGS) (cont.)
+    At its core, the BFGS method tries to find the zeros iteratively of the following quadratic model at $ f_k = f(x_k) $:
+
+    $$
+    q(p) = f_{k} + \nabla {f_{k}^T}{p} + \frac{1}{2} p B_{k} p^T
+    $$
+    
+    by updating the matrix $ B_k $ in a way that uses the gradient information obtained at each iteration and merging it to the matrix $ B_{k + 1} $ and avoid to recompute the $ n^2 $ derivatives ($ n $ is the number of variables of $ f $) that composes the $ B $ matrix. 
+  </textarea>
+</section>
+
+<!--|2.2|"======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.2 Quasi Newton's methods (BFGS) (cont.)
+    The actual method follows the method's creator (W. C. Davidon) [[2]](#ref2) idea of preserving the previous iteration gradient in order to incorporate curvature information to the $ B_k $ matrix:
+
+    $$ 
+    \displaylines{
+      \nabla q_{k + 1} (-\alpha p_k) & = \nabla f_k \newline
+      & = \nabla f_{k + 1} - \alpha B_{k + 1} p_k
+    }
+    $$
+  </textarea>
+</section>
+
+<!--|2.2|"======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.2 Quasi Newton's methods (BFGS) (cont.)
+    By re-arranging we get:
+
+    $$
+      B_{k+1} \alpha_{k} p_{k} = \nabla f_{k + 1} - \nabla f_{k}
+    $$
+
+    if we define $ s_k = x_{k + 1} - x_{k} = \alpha_{k} p_{k} $ and $ y_k = \nabla f_{k+1} - \nabla f$, the previous expression simplifies to the _secant equation_:
+
+    $$
+      B_{k+1} s_{k} = y_{k}.
+    $$
+
+    The next important step is made through the _Sherman-Morrison-Woodbury_ formula, that it is presented in the following theorem.
+  </textarea>
+</section>
+
+<!--|2.2|"======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.2 Quasi Newton's methods (BFGS)
+    
+    **Theorem 2.2.1** _(Sherman-Morrison-Woodbury formula)_    
+    Let $ U $ and $ V $ be matrices in $ \bb{R}^{n \times p} $ for some $ p $ between $ 1 $ and $ n $. If we define 
+    $$
+      \hat{A} = A + U V^{T}
+    $$
+    then $ \hat{A} $ is nonsingular if and only if $ (I + V^{T} A^{-1} U) $ is nonsingular, and in this case we have
+    $$
+    \begin{equation}
+      \hat{A^{-1}} = A^{-1} - A^{-1} U (I + V^{T} A^{-1} U)^{-1} V^{T} A^{-1} .
+      \label{eq-smw-form} 
+      \quad \Box
+    \end{equation}
+    $$
+  </textarea>
+</section>
+
+<!--|2.2|"======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.2 Quasi Newton's methods (BFGS)
+    If $ H_{k} = B_{k}^{-1} $, then by _Sherman-Morrison-Woodbury formula_ $ \eqref{eq-smw-form} $ we get that:
+    $$
+      H_{k+1} = H_{k} - \frac{H_k y_k y_k^T H_k}{y_k^T H_k y_k} - \frac{s_k s_k^T}{y_k^T y_k}. 
+    $$
+    This expression shows that the inverse matrix of $ B_k $ can be computed in a cheap way only through standard matrix multiplications.
+
+    BFGS also has the mandatory requirement that at each step $ H_{k+1} $ must be symmetric, positive definite and also satisfy the _secant equation_:
+    $$  
+      H_{k+1} y_k = s_k
+    $$
+  </textarea>
+</section>
+
+<!--|2.2|"======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.2 Quasi Newton's methods (BFGS) (cont.)
+    In the same way, it is desired that at each step the nearest $ H_{k+1} $ is computed. This definition of nearest $ H_{k + 1} $ to the previous $ H_{k} $ is stated with the following minimization problem:
+    $$
+      \min_{H} || H - H_{k} || \txt{s.t.} H = H^T, H s_k = y_k
+    $$
+
+    whose unique solution is given by:
+    $$
+    \begin{equation}
+      H_{k + 1} = (I - \rho_{k} s_{k} y_{k}^T) H_k (I - \rho_{k} y_{k} s_{k}^T) + \rho_{k} s_{k} s_{k}^T
+      \label{eq-hkk}
+    \end{equation}
+    $$
+  </textarea>
+</section>
+
+<!--|2.3|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.3 Lagrange Multipliers
+    This method appears naturally when the unconstrained problem $ \min_{x \in \bb{R}} f(x) $ becomes constrained by one equality: 
+    $$
+    \displaylines {
+      \min_{x \in \bb{R}^n} f(x) \txt{s.t.} g(x) = 0
+    }
+    $$ 
+    where $ f $ and $ g $ are real-valued smooth functions on a subset of $ \bb{R}^n $. At its core the method imposes a necessary condition to any critical point $ x^\star $, as stated in the following theorem. 
+  </textarea>
+</section>
+
+<!--|2.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.3 Lagrange Multipliers (cont.)
+    **Theorem 2.2.1** _(Lagrange Multipliers)_    
+    Let $ f: K^n \mapsto \bb{R} $ and $ g: K^n \mapsto \bb{R} $ be $ C^1 $ real functions, $ K^n \subseteq \bb{R}^n $, $ x^\star \in K $, $ g(x^\star) = c $, $ S = \lbrace x \in \bb{R} \\;|\\; g(x) = c \rbrace $ (i.e. the level set) and $ \nabla g(x^\star) ≠ 0 $. If $ f|S $ ($ f $ restricted to $ S $) has an optimal value at $ x^\star $, then there is a real number $ \lambda $ such that
+    $$
+      \nabla f(x^\star) = \lambda \nabla g(x^\star). \quad \Box
+      \label{lagrangeoptcriteria}
+    $$
+  </textarea>
+</section>
+
+
+<!--|2.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.3 Lagrange Multipliers (cont.)
+    Seemingly, if there are several equality constraints, for the problem:
+    $$
+      \min_{x \in \bb{R}^n} f(x) \txt{s.t} g_i(x) = 0, \\; i \in \cc{E}
+    $$
+    where $ f $ and $ g $ are real-valued smooth functions on a subset of $ \bb{R}^n $ and  $ \cc{E} $ is a finite index set, the previous theorem can be extended as follows.
+
+    **Theorem 2.2.2** _(Lagrange Multipliers)_     
+    If $ f $ has a maximum or minimum at $ x^\star $ on $ S = \lbrace x \in \bb{R} \\;|\\; g_i(x) = 0, i \in \cc{E} \rbrace $ and the vectors $ \nabla g_i $ for $ i \in \cc{E} $ are linearly independent, then must exist constants $ \lambda_i $  such that:
+    $$
+    \nabla f(x^\star) = \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x^\star). \quad \Box
+    $$
+
+  </textarea>
+</section>
+
+<!--|2.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.3 Lagrange Multipliers (cont.)
+    Naturally, Lagrange multipliers can be employed to solve optimization problems that also involves unequality constraints, such as this general formulation:
+    
+    $$
+      \begin{equation}
+      \min_{x \in \bb{R}}f(x) \txt{s.t.}
+      \begin{cases}
+      \\; g_i(x) =    0, \\; i \in \cc{E} \newline
+      \\; g_i(x) \leq 0, \\; i \in \cc{I} 
+      \end{cases}
+      \label{eq-gralproblem}
+      \end{equation}
+    $$
+
+    where $ f $ and $ g_i $ are real-valued smooth functions on a subset of $ \bb{R}^n $ for $ i \in \cc{E} \cup \cc{I}$, and $ \cc{E}$ and $ \cc{I} $ are finite set of indices for equality and inequality constraints respectively.
+  </textarea>
+</section>
+
+<!--|2.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.3 Lagrange Multipliers
+    The equality criteria in previous theorem can be stated more compactly by introducing the following function called _Lagrangian function_:
+    $$
+    \begin{equation}
+      \cc{L}(x, \lambda) = f(x) - \sum_{i \in \cc{E}} \lambda_{i} g_i(x)
+      \label{eq-lagrangian}
+    \end{equation}
+    $$
+
+    And then taking the gradient respect to $ x $:
+    $$
+    \nabla \cc{L_x} (x, \lambda) = \nabla f(x) - \sum_{i \in \cc{E}} \lambda_{i} \nabla g_i(x)
+    $$
+
+    Finally, if $ x^{\star} $ is an optimal point, then:
+    $$
+    \begin{equation}
+      \nabla \cc{L_x} (x^{\star}, \lambda) = 0.
+    \end{equation}
+    $$
+  </textarea>
+</section>
+
+<!--|2.4|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.4 KKT optimality conditions
+    Known as _First-Order Necessary Conditions_, are conditions concerned to the gradients of a local solution $ x^\star $. As such, they are statements that must be true for a given $ x^\star $. At its core, this conditions are based on a step-wise strategy when the function value is optimized.
+
+    This strategy states that if you cannot find a step vector $ s $ such that $ \nabla f(x) s < 0 $ and also $ \nabla g_i(x) s \geq 0 $ for the general problem \label{eq-gralproblem}, it means that you have reached an optimal value because the function cannot get a lower value while satisfying the constraints. In fact, geometrically this point is met when both $ \nabla g_i(x) $ and $ \nabla f(x) $ point to the same direction: $ \nabla f(x) = \lambda \nabla g_i(x) $ for $ \lambda \in \bb{R} $. That is $ \nabla_{x} \cc{L}(x, \lambda) $, the _Lagrangian_ gradient respect $ x $ of $ \eqref{eq-lagrangian} $.
+  </textarea>
+</section>
+
+<!--|2.4|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.4 KKT optimality conditions (cont.)
+    As this method is based on _first-order approximations_ i.e. _gradients_, a qualification must be satisfied in order to capture correctly the geometric features of the neighborhood of $ x $. This qualification is provided in the following definition [[2]](#ref2).
+
+    **Definition 2.3.1** _(LICQ)_     
+    Given the point $ x $ and the active set $ \cc{A}(x) $ $ = $ $ \cc{E} $ $ \cup $ $ \lbrace i \in \cc{I} $ $ | $ $ c_i(x) = 0 \rbrace $, we say that the _linear independence constraint qualification_ (LICQ) holds if the set of active constraint gradients $ \lbrace \nabla c_i(x), \\; i \in \cc{A}(x) \rbrace $ is linearly independent. $ \Box $
+    
+    Finally, the _first-order necessary conditions_ are given in the following theorem. This conditions are often known as _Kuhn-Karush-Tucker Condtions_ or _KKT Conditions_ for short.
+  </textarea>  
+</section>  
+
+<!--|2.4|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 2.4 KKT optimality conditions (cont.)
+    **Theorem 2.3.2** _(First-Order Necessary Conditions)_  
+    Suppose that $ x^\star $ is a local solution of $ \eqref{eq-gralproblem} $, that the functions $ f $ and $ g_i $ are continuously differentiable, and that the LICQ holds at $ x^\star $. Then there is a Lagrange multiplier vector $ \lambda^\star $, with components $ \lambda_{i}^{\star} $,  $ i \in \cc{E} \cup \cc{I} $, such that the following conditions are satisfied at $ (x^\star, \lambda^\star) $:
+    $$
+      \begin{equation}
+      \displaylines {
+      \nabla_x \cc{L}(x^\star, \lambda^\star) & = 0, \newline
+      \qquad \\; c_i(x^\star)  & = 0, \quad \forall i \in \cc{E}, \newline 
+      \qquad \\; c_i(x^\star) & \geq 0, \quad \forall i \in \cc{I}, \newline
+      \qquad \qquad \lambda^\star & \geq 0, \quad \forall i \in \cc{I}, \newline
+      \quad \lambda^\star c_i(x^\star) & = 0, \quad \forall i \in \cc{E} \cup \cc{I}. \quad \Box
+      }
+      \label{kkt-conditions}
+      \end{equation}
+    $$
+  </textarea>
+</section>
+
+<!--|3|========================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    # 3. SQP Method and Software Implementation
+  </textarea>
+</section>
+
+<!--|3|"=======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3. SQP Method and Software Implementation
+    _Sequential Quadratic Programming_ is an iterative numerical optimization method employed to compute constrained optimization problems. At each step it solves a _Quadratic Programming (QP)_ subproblem after considering the current KKT conditions $ \eqref{kkt-conditions} $. As commented before, those conditions give optimality necessary conditions for constrained optimization problems. Additionally, also applies a _quasi-Newton BFGS_ method that ensures a super-linear convergence after accumulating function's second-order behavior information in each iteration.
+  </textarea>
+</section>
+
+<!--|3.1|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.1 Hessian Matrix Update
+    At each loop an approximation to the Hessian's Lagrangian function is made with the the following BFGS expression $ \eqref{eq-hkk} $:
+
+    $$
+    \begin{equation}
+      H_{k + 1} = (I - \rho_{k} s_{k} y_{k}^T) H_k (I - \rho_{k} y_{k} s_{k}^T) + \rho_{k} s_{k} s_{k}^T
+    \end{equation}
+    $$
+
+    This update is made while trying to keep the matrix $ H_{k + 1} $ positive definite in order to follow the convergence recommendations proposed by method authors. This positive-definiteness is achieved when $ y_k^T s_k > 0 $.
+  </textarea>
+</section>
+
+<!--|3.2|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.2 Quadratic Programming solution
+    As commented at the beginning of this chapter, at each iteration a _Quadratic Programming (QP)_ problem is formulated and solved. QP is a topic within numerical optimization that studies techniques to optimize linear-constrained quadratic polynomials problems:
+    $$
+    \begin{equation}
+    \displaylines {
+      \min_{d \in \cc{R}^n} q(d) = \frac{1}{2} d^T H d + c^T d, \newline
+      \txt{s.t.}
+      A_i d = b_i, \\;  i = 1, ..., m_e, \newline
+      \qquad \\; A_i d \leq b_i, \\; i = \\; m_e + 1,... ,m  \newline
+    }
+    \label{def-qp}
+    \end{equation}
+    $$
+
+    where $ d $ is the domain's input vector to the problem, $ H $ the hessian matrix, $ A_i $ the i-th row of matrix $ A $ of linear constraint coefficients and $ b_i $ the constant for i-th equation, $ m_e $ the number of equality constraints and $ m $ the total number of constraints.
+  </textarea>
+</section>
+
+<!--|3.2|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.2 Quadratic Programming solution
+    The solution of this problem involves two stages. The first stage consists in to stablish an starting feasible point. The second stage objective is to update iteratively this point in order to reach the optimality conditions. In this process an active set $ \overline{A}_k $ of constraints is maintained.
+  </textarea>
+</section>
+
+<!--|3.2|"=====================================================================-->
+<section data-markdown style="font-size: x-large;">
+  <textarea data-template>
+    ## 3.2 Quadratic Programming solution
+    At each stage, $ \overline{A}_k $ conform a space basis and from there a search direction $ \hat{d}_k $ is computed. Since this is an active set method, $ \hat{d}_k $ is computed always over the constraint set boundaries (active constraints). Then, a feasible subspace $ Z_k $ for $ \hat{d}_k $ is built with a set of vectors that are orthogonal to the active set $ \overline{A}_k $ (i.e. $ \overline{A}_k Z_k = 0 $). When $ \hat{d}_k $ is computed with $ Z_k $ it always happen that the next $ \hat{d}_k $ will lie on the constraint boundaries.
+
+    The matrix $ Z_k $ is built from the last $ m - l $ columns of the matrix $ \overline{A}^T_k $ QR decomposition, where $ l $ is the number of active constraints:
+    $$
+      Z_k = Q[:, l + 1 : n]
+    $$
+    where
+    $$
+      Q^T A^{T}_k = 
+    \begin{bmatrix}
+      R \\\\\
+      0 \\\\\
+    \end{bmatrix}.
+    $$
+  </textarea>
+</section>
+
+<!--|3.2|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.2 Quadratic Programming solution
+    When the subspace $ Z_k $ is found, a new search direction $ \hat{d}_k $ is obtained such that minimizes the current quadratic problem at iteration $ k $. This means that $ \hat{d}_k \in gen(Z_k) $, where $ gen(Z) $ denotes the subspace generated by $ Z $.
+
+    Having that $ \hat{d}_k = Z_k p $, the objective function in $ \eqref{def-qp} $ can be written in terms of $ Z_k $ and $ p $ as:
+    $$
+    \begin{equation}
+      q(p) = \frac{1}{2} p^T Z^T_k H Z_k p + c^T Z_k p.
+      \label{sqp-quad}
+    \end{equation}
+    $$
+  </textarea>
+</section>
+
+<!--|3.2|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.2 Quadratic Programming solution
+    Then, the derivative respect to $ p $ gives:
+    $$
+    \nabla q(p) = Z^T_k H Z_k p + Z^T_k c.
+    $$
+
+    Given that the matrix $ H $ is positive definite (as will always happen for the presented SQP method), the minimum of $ \eqref{sqp-quad} $ will be found at $ \nabla q(p) = 0 $, that is:
+    $$
+      Z^T_k H Z_k p = - Z^T_k c.
+    $$
+  </textarea>
+</section>
+
+<!--|3.2|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.2 Quadratic Programming solution
+    This let the next iteration step:
+    $$
+      x_{k+1} = x_k + \alpha \hat{d}_k,  \txt{where} d_k = Z_k p.
+    $$
+    Because the objective function has quadratic form, the step factor $ \alpha $ can be chosen from two options. The first involves $ | \alpha | = 1 $ in the same direction of $ \hat{d}_k $. If such $ \alpha $ exists, that is the solution for the QP. If not, $ | \alpha | < 1 $ must be selected and a new active constraint is added to the active set $ \overline{A} $.  
+  </textarea>
+</section>
+
+<!--|3.2|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.2 Quadratic Programming solution 
+    Finally, if $ n $ constraints satisfy the _LICQ_ definition and the solution point is far from a solution, Lagrange multipliers from $ \eqref{eq-lagrangian} $ are computed from the following nonsingular linear system of equations:
+    $$
+      A^T_k \lambda_k = c + H x_k
+    $$
+
+    If $ \lambda_k > 0 $ for every $ \lambda_i $ that solves the previous system of equations, $ x_k $ is the solution of the QP $ \eqref{def-qp} $; else, that $ \lambda_i $ is discarded, the set $ \overline{A} $ is modified and a new iteration is started.
+  </textarea>
+</section>
+
+<!--|3.3|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.3 Initialization
+    As commented before, SQP method requires a feasible starting point. The following linear problem solution provides a feasible point when is hard to find one:
+    $$
+    \displaylines{
+    \min_{\gamma \in \cc{R}, d \in \cc{R}^n} \gamma \newline
+    \\; \txt{s.t. } A_i d = b_i, \\; i = 1, ..., m_e \newline
+    \quad A_i d - \gamma \leq b_i, \\; i = m_e + 1, ..., m
+    }
+    $$
+
+    where $ \gamma $ is an artificial variable and $ d $, $ A_i $, $ b_i $, $ m_e $, $ m $ are defined as in $ \eqref{def-qp} $.
+  </textarea>
+</section>
+
+<!--|3.4|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 3.4 Line Search and Merit Function
+    Each SQP iteration outputs a vector $ d_k $ that will step the current $ x_k $ towards the optimal value:
+    $$
+      x_{k + 1} = x_k + \alpha d_k.
+    $$
+
+    Since the implemented method is based on merit functions, the value of $ \alpha $ is computed in order to reduce the following merit function's value:
+    $$
+    \Psi (x) = f(x) + \sum_{i-1}^{m_e} r_i g_i(x) + \sum_{i = m_e + 1}^{m} r_i \max[0, g_i(x)].
+    $$
+  </textarea>
+</section>
+
+<!--|4|========================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    # 4. Optimization Software Walkthrough
+  </textarea>
+</section>
+
+<!--|4|"=======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 4. Optimization Software Walkthrough
+    It is well known that _chevishev approximation problem (CAP)_ is one of the first examples shown to understand the gears behind the _semi-infinite programming (SIP)_ problems. Looking at the equation $ \eqref{chebyshevproblem} $, it is seen that its nuts and bolts are keep together in two stages: a maximization stage that looks for the biggest difference among all the approximation interval, and a second stage that takes the lowest difference while modifying the approximation function parameters. This idea is behind the mechanism that let the software developers implement the _SIP_ solver [[1]](#ref1).
+  </textarea>
+</section>
+
+<!--|4.1|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 4.1 First stage: maximization
+    The software tool solves iteratively semi-infinite programming problems such as the described in $ \eqref{def-sip} $, after doing two major problem reformulations in the first stage at each iteration. 
+
+    First, perform a piecewise quadratic or cubic approximation of $ g $ over a discretization of the domain set $ \Omega $. Then, reformulates each semi-infinite constraint $ g $ with a fixed $ x $ into a maximization problem, such as the core idea in _CAP_ $ \eqref{chebyshevproblem} $. 
+  </textarea>
+</section>
+
+<!--|4.1|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 4.1 First stage: maximization (cont.)
+    In mathematical terms the semi-infinite constraint $ g $ in problem $ \eqref{def-sip} $ should look like as this:
+
+    $$
+      \max_{w \in \hat{\Omega}} \\; \hat{g}(x, w) \leq 0, \\; x = c, \\; |\hat{\Omega}| \in \bb{N} 
+    $$
+
+    where $ \hat{\Omega} \subset \Omega $ is an user provided discretization of $ \Omega $ (e.g. an user defined grid), $ \hat{g} $ is a piecewise quadratic and cubic approximation of the original $ g $ and $ c \in K $, with $ \Omega $, $ g $ and $ K $ defined as in $ \eqref{def-sip} $.    
+  </textarea>
+</section>
+
+<!--|4.1|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 4.1 First stage: maximization (cont.)
+    By applying this reformulations, the original problem with infinitely constraints is translated into a problem that has finite and piecewise polynomial constraints. Once the maximization is computed, the result is passed to a constrained non-linear solver that will perform the minimization stage.
+  </textarea>
+</section>
+
+<!--|4.2|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 4.2 Second stage: minimization
+    The minimization stage is performed in a constrained non-linear solver that executes an SQP optimization algorithm, whose details were discussed in previous sections. This minimization problem is composed of the initial $ \eqref{def-sip} $ objective function $ f $  and a new constraint set made of the results computed in the maximization stage.
+  </textarea>
+</section>
+
+<!--|4.3|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 4.3 Software implementation summary
+    This two stages are condensed into the following algorithm [[1]](#ref1) that composes the actual implementation of the software tool. 
+
+    **Algorithm 3.3.1** _MATLAB's fseminf implementation overview_
+
+      1. Perform a target function piecewise approximation, then maximize the biggest difference against the approximation function. Accumulate all the results.
+      2. Solve the minimization problem with SQP.
+      3. Check for step size threshold, if not go to step 4.
+      4. Update constraints and Lagrange multipliers.
+  </textarea>
+</section>
+
+<!--|5|========================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    # 5. Numerical Experiments
+  </textarea>
+</section>
+
+<!--|5|"=======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5. Numerical Experiments
+    The numerical experiments were performed to approximate 2-dimensional and 3-dimensional functions. For each example a two tile figure is provided. The left figure is an error plot that shows the difference between the CAP-SIP approximation and the target function. 
+
+    The 2-dimensional plot is rotated around the _z-axis_ to appreciate the approximation from every side. On the other hand, as 3-dimensional plots belongs to 4th dimension, the 3-dimensional levels are plotted and this is the actual animation of those pictures.
+  </textarea>
+</section>
+
+<!--|5.1|======================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.1 Example 1 _(results)_    
+    The results for this [example](#example1) where $ d(w_1, w_2) = \log(w_1 + w_2)\sin(w_1) $ over $ [0, 1] $ $ \times $ $ [1, 2.5] $ with a second degree polynomial are shown in the following picture:
+  </textarea>
+</section>
+
+<!--|5.1|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.1 Example 1 _(results)_ (cont.)   
+
+    ![gif image](results/ex1.gif "2d degree approx.")
+
+    > **Figure1**: Left image shows the absolute difference between __target function__ and __approximation__ values. Right animation shows the target function __surface__ (in color) and the computed approximation __grid__ (in white), seen from different angles. 
+
+  </textarea>
+</section>
+
+<!--|5.1|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.1 Example 1 _(results)_ (cont.)
+    
+    This example is also developed in [[4]](#ref4) and [[8]](#ref8). In [4] the author approximates incrementally the target function with a 7th degree polynomial on $ 12 $ iterations with a minimum error of $ \sctnot{1.00478}{-5} $. Also, in [8] the approximation is computed with a lowest error of $ \sctnot{2.8063}{-2} $ in $ 95 $ iterations. The pictured approximation was obtained with this document's method in $ 93 $ iterations with a minimal error of $ \sctnot{1.5}{-6} $: 
+  </textarea>
+</section>
+
+<!--|5.1|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.1 Example 1 _(results)_ (cont.)
+    ![gif image](results/ex1a.gif "2d degree approx.")
+    > **Figure 2:** 7th degree polynomial approximation for example 1.6.1 with SQP method. 
+  </textarea>
+</section>
+
+<!--|5.1|"=====================================================================-->
+<section data-markdown style="font-size: 60%">
+  <textarea data-template>
+    ## 5.1 Example 1 _(results)_ (cont.)
+    Table1 summarizes the findings. $ n $, $ d $, $ e $ stands for _number of iterations_, _polynomial degree_ and _error_ respectively; _DM_  stands for _Discretization Methods_ the method employed in [[4]](#ref4); and _EA_ stands for _External approximations_ the method employed in [[8]](#ref8):
+
+    <table>
+      <thead>
+      <tr>
+      <th>d</th><th>SQP n</th><th>DM n</th><th>EA n</th><th>SQP e</th><th>DM e</th><th>EA e</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr><td>2</td><td>22</td><td>4</td><td>-</td><td>2.81e-2</td><td>2.80e-2</td><td>-</td></tr>
+      <tr><td>3</td><td>35</td><td>6</td><td>-</td><td>3.50e-5</td><td>3.47e-3</td><td>-</td></tr>
+      <tr><td>4</td><td>161</td><td>4</td><td>-</td><td>9.00e-4</td><td>6.96e-4</td><td>-</td></tr>
+      <tr><td>5</td><td>91</td><td>11</td><td>-</td><td>2.00e-3</td><td>1.62e-4</td><td>-</td></tr>
+      <tr><td>6</td><td>92</td><td>8</td><td>-</td><td>2.50e-3</td><td>3.96e-5</td><td>-</td></tr>
+      <tr><td>7</td><td>93</td><td>13</td><td>95</td><td>1.50e-3</td><td>1.00e-5</td><td>2.80e-1</td></tr>
+      </tbody>
+      </table>
+
+      > **Table1**. The results of the method exposed in this document compared to other authors.
+  </textarea>
+</section>
+
+<!--|5.1|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.1 Example 1 _(results)_ (cont.)
+    Now, some clarifications about the meaning of $ e $. The technique employed to compute the results is based in the _minimax_ problem $ \eqref{chebyshevproblem} $. Then the maximization part of the problem was reformulated into the artificial variable $ t $ in $ \eqref{capsip} $, being now $ t $ the objective function. The value of $ e $ is the minimal value that $ f(x, t) = t $ holds after the minimization process, this means that $ e $ is the lower difference among the maximum differences that were obtained while performing the optimization process. This value can be seen in the brightest zones within the 2-dimensional error plots shown in the left side of each figure. Moreover, the value that appears in the table is the maximum value that the colorbar displays.
+  </textarea>
+</section>
+
+
+<!--|5.2|======================================================================-->
+<section data-markdown style="font-size: 40%">
+  <textarea data-template>
+    ## 5.2 Example 2 _(results)_   
+    For this problem instance the function $ d(w_1, w_2) = (1 + w_1)^{w_2} $ is approximated within the interval $ [0, 1] \times [1, 2.5] $. The **Figure2** shows the approximation achieved with a 2nd-degree polynomial in $ 27 $ iterations and with a minimum error $ e = 0.1776 $: 
+    ![example2](./results/ex2.gif)
+    > **Figure3:** 2nd-degree polynomial approximation for $ d(w_1, w_2) = (1 + w_1)^{w_2} $
+  </textarea>
+</section>
+
+<!--|5.2|"=====================================================================-->
+<section data-markdown style="font-size: 40%">
+  <textarea data-template>
+    ## 5.2 Example 2 _(results)_ (cont.)   
+    As with the previous problem, next figure shows the approximation with a 7th-degree polynomial. Note that the patterns formed in error plot are similar to those displayed in previous example, due to the polynomial's degree. Additionally, check that the error also improves.
+
+    ![example2a](./results/ex2a.gif)
+    > **Figure4:** 7th-degree polynomial approximation for $ d(w_1, w_2) = (1 + w_1)^{w_2} $
+  </textarea>
+</section>
+
+<!--|5.2|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.2 Example 2 _(results)_ (cont.)   
+    The following table puts side-to-side the results computed by other authors:
+    <table>
+    <thead>
+    <tr><th>d</th><th>SQP n</th><th>DM n</th><th>EA n</th><th>SQP e</th><th>DM e</th><th>EA e</th></tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td>2</td><td>27</td><td>4</td><td>-</td><td>1.77e-1</td><td>1.77e-1</td><td>-</td></tr><tr>
+    <td>3</td><td>50</td><td>5</td><td>-</td><td>3.66e-2</td><td>3.65e-2</td><td>-</td></tr><tr>
+    <td>4</td><td>82</td><td>5</td><td>-</td><td>7.40e-3</td><td>4.67e-3</td><td>-</td></tr><tr>
+    <td>5</td><td>88</td><td>7</td><td>-</td><td>2.00e-3</td><td>7.38e-4</td><td>-</td></tr><tr>
+    <td>6</td><td>93</td><td>6</td><td>-</td><td>2.48e-3</td><td>7.67e-5</td><td>-</td></tr><tr>
+    <td>7</td><td>95</td><td>8</td><td>48</td><td>9.80e-3</td><td>8.80e-6</td><td>2.80e-1</td></tr>
+    </tbody>
+    </table>
+  </textarea>
+</section>
+
+<!--|5.2|"=====================================================================-->
+<section data-markdown style="font-size: large;">
+  <textarea data-template>
+    ## 5.2 Example 2 _(results)_ (cont.)   
+    Starting from 2nd-degree polynomial approximations in some examples, the polynomial approximation plot is near enough to target surface  that causes [_z-fighting_](https://en.wikipedia.org/wiki/Z-fighting) within the plot. This validates the approximation quality, because this phenomena occurs when two graphical primitives are extremely close. This picture highlights the _z-fighting_ for the current example:
+    ![z-fighting](./results/z-fight.sm.png)
+    **Figure5:** Z-fighting on 5th-degree polynomial approximation. The white grid is the approximation. The color surface is the target function. 
+  </textarea>
+</section>
+
+<!--|5.3|======================================================================-->
+<section data-markdown style="font-size: large;">
+  <textarea data-template>
+    ## 5.3 Example 3 _(results)_   
+    For this approximation example a 9th-degree polynomial was chosen. The results compared to [[4]](#ref4) are discussed after following figure:
+
+    ![example3](./results/ex3.gif)
+    
+    > **Figure6:** A 9th-degree polynomial approximation for $ d(w) = e^{(w_1^2 + w_1w_2)} $.
+  </textarea>
+</section>
+
+<!--|5.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.3 Example 3 _(results)_  (cont.)    
+    This approximation was achieved after $ 96 $ iterations and has a maximum error of $ \sctnot{8.0}{-4} $, on the other hand [[4]](#ref4) has an error of $ \sctnot{7.35}{-1} $ in $ 10 $ iterations. The aim of this example is to show how good can be this method to approximate a surface with pronounced peaks with a high degree polynomial. Remark, the more black the error plot is, more uniform and smooth the approximation is.
+  </textarea>
+</section>
+
+<!--|5.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.4 Example 4 _(results)_   
+    In this example a 3-dimensional function is approximated. Certainly, the computation time is increased due to more dense matrices, but the number of iterations remains similar to the 2-dimensional examples.
+
+    Since 3-dimensional functions plots belongs to 4th dimension, here the 3-dimensional _level_ or _contour_ plots are shown. The third axis i.e. $ w_3 $ will give de level for the level plots. In particular, for this example the level values will be in $ [0, 1] $. 
+  </textarea>
+</section>
+
+<!--|5.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.3 Example 3 _(results)_  (cont.)    
+    ![example4](./results/ex8.gif)
+    
+    > **Figure7:** 5th-degree approximation of $ d(w) = \cos(w_3 (1 + w_1))^{w_2} $.
+  </textarea>
+</section>
+
+<!--|5.3|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.3 Example 3 _(results)_  (cont.)    
+    This approximation took $ 90 $ iterations and had a minimum error of $ \sctnot{6.50}{-3} $ while the approximation made in [[4]](ref#4) had a minimum error of $ \sctnot{7.08}{-4} $ in only $ 11 $ iterations. The following table shows the number of iterations $ n $ required to approximate $ d(w) $ with a polynomial of degree $ d $ and its minimum error $ e $:
+    <table>
+      <thead>
+      <tr><th>d</th><th>SQP n</th><th>DM n</th><th>SQP e</th><th>DM e</th></tr>
+      </thead>
+      <tbody>
+      <tr><td>2</td><td>76</td><td>4</td><td>5.12e-0</td><td>1.52e-1</td></tr>
+      <tr><td>3</td><td>56</td><td>7</td><td>2.05e-0</td><td>3.11e-2</td></tr>
+      <tr><td>4</td><td>85</td><td>12</td><td>1.95e-1</td><td>4.87e-3</td></tr>
+      <tr><td>5</td><td>90</td><td>11</td><td>6.50e-3</td><td>7.08e-4</td></tr>
+      </tbody>
+    </table>
+    
+    > **Table3**: Results comparative with 4
+  </textarea>
+</section>
+
+<!--|5.5|======================================================================-->
+<section data-markdown style="font-size: large">
+  <textarea data-template>
+    ## 5.5 Example 5 _(results)_
+    For this target, the author in [[4]](#ref4) stated that their method had stability ussues, and for that reason it was only approximated up to the 3rd-degree polynomial.
+    The following figure shows our approximation for the 5th-degree polynomial:
+
+    ![example9](./results/ex9.gif)
+
+  </textarea>
+</section>
+
+<!--|5.5|"=====================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    ## 5.5 Example 5 _(results)_ (cont.)
+    Finally, this table shows the computation results compared to author in [[4]](#ref4):
+    <table>
+      <thead>
+      <tr><th>d</th><th>SQP n</th><th>DM n</th><th>SQP e</th><th>DM e</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr><td>2</td><td>60</td><td>5</td><td>1.08e-1</td><td>8.89e-2</td></tr>
+      <tr><td>3</td><td>79</td><td>12</td><td>9.71e-2</td><td>4.81-e2</td></tr>
+      <tr><td>4</td><td>89</td><td>-</td><td>7.49e-2</td><td>-</td></tr>
+      <tr><td>5</td><td>87</td><td>-</td><td>7.81e-2</td><td>-</td></tr>
+      </tbody>
+    </table>
+
+    > **Table4**: Results comparative.
+  </textarea>
+</section>
+
+<!--|6|========================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    # 6. Conclusion
+    The software implementation employed to compute the numerical experiments uses a reformulation that has the same idea that _CAP_, that is, a two-stage _maximization-then-minimization_ problem. For that reason, the reformulation made in $ \eqref{capsip} $ can be avoided and instead of that, a customized computer software solution can be used in order to handle the problem directly. This will reduce the reformulation overhead that can result in better computing times.
+  </textarea>
+</section>
+
+<!--|R|========================================================================-->
+<section data-markdown>
+  <textarea data-template>
+    # References
+  </textarea>
+</section>
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+        slideNumber: true,
+        showSlideNumber: 'all',
+        disableLayout: false,
+        center: false,
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+	</body>
+</html>

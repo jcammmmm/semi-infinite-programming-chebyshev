@@ -220,7 +220,7 @@ $$</p>
 <blockquote>
 <blockquote>
 <p>ABSTRACT: In this document a Chebyshev's approximation to a real valued function is performed through a semi-infinite programming problem. This reformulation uses the software tools available for optimization problems to compute the approximation. In particular, the computer program employed to execute the optimization task relies on Sequential Quadratic Programming (SQP) method. In order to made this document self-contained, the definitions and techniques that composes the SQP method are described. In the first section, the problem restatement into semi-infinite programming terms is detailed, and some problem examples are portrayed. The followings sections describe the SQP techniques and core concepts that makes the method. In the final section, the proposed problems in initial sections are computed.<br>
-KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadratic programming, constrained optimization.</p>
+KEYWORDS: chebyshev's approximation, semi-infinite programming, sequential quadratic programming, constrained optimization.</p>
 </blockquote>
 </blockquote>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -240,8 +240,8 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 <li><a href="#2-numerical-optimization-background">2. Numerical Optimization Background</a><ul>
 <li><a href="#21-newtons-method">2.1 Newton's Method</a></li>
 <li><a href="#22-quasi-newtons-methods-bfgs">2.2 Quasi Newton's methods (BFGS)</a></li>
-<li><a href="#22-lagrange-multipliers">2.2 Lagrange Multipliers</a></li>
-<li><a href="#23-kkt-optimality-conditions">2.3 KKT optimality conditions</a></li>
+<li><a href="#23-lagrange-multipliers">2.3 Lagrange Multipliers</a></li>
+<li><a href="#24-kkt-optimality-conditions">2.4 KKT optimality conditions</a></li>
 </ul>
 </li>
 <li><a href="#3-sqp-method-and-software-implementation">3. SQP Method and Software Implementation</a><ul>
@@ -272,9 +272,9 @@ KEYWORDS: chebyshev's aproximation, semi-infinite programming, sequential quadra
 </ul>
 </div>
 <h2 id="1-problems-definition">1. Problem's definition</h2>
-<p>In this section we will provide the necessesary definitions in order to put the <em>Chebyshev's approximation problem</em> (CAP) in terms of a <em>semi-infinite programming problem</em> (SIP).</p>
+<p>In this section we will provide the necessary definitions in order to put the <em>Chebyshev's approximation problem</em> (CAP) in terms of a <em>semi-infinite programming problem</em> (SIP).</p>
 <h3 id="11-chebyshev-approximation-problem-cap">1.1 Chebyshev approximation problem <em>(CAP)</em></h3>
-<p>The <em>Chebyshev approximation problem</em> <em>(CAP)</em> can be formulated in serveral ways, one of them is described as the following <em>minimax</em> problem:
+<p>The <em>Chebyshev approximation problem</em> <em>(CAP)</em> can be formulated in several ways, one of them is described as the following <em>minimax</em> problem:
 $$
 \begin{equation}
   \min_{x \in K_{n-1}} \max_{w \in \Omega} |d(w) - F(x, w)|
@@ -286,7 +286,7 @@ where
   $ \Omega \subseteq \mathbb{R}^{m} $ are non-empty and compact sets, 
   $ d: \Omega \mapsto \mathbb{R} $ and
   $ F: K_{n-1}\times\Omega \mapsto \mathbb{R} $ are smooth functions given as input to the problem. </p>
-<p>Here, $ d(w) $ and $ F(x, w) $ represents the function to aproximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize and $ w $ is the function input or variables. </p>
+<p>Here, $ d(w) $ and $ F(x, w) $ represents the function to approximate and the approximation function respectively, where $ x $ is the vector of parameters or coefficients that we want to optimize and $ w $ is the function input or variables. </p>
 <p>Note that the approximation error given by $ |d(w) - F(x, w)| $ is not squared and is computed linearly, and it is performed in every point of the approximation interval $ \Omega $. In fact, each <em>semi-infinite constraint</em> represent each possible function value of $ d $ and $ F $ over the approximation interval $ \Omega $.</p>
 <p>As a side note, most of the numerical methods shown in this document works thanks to the approximation domain set convexity, for that reason authors commonly refer and name that set with a symbol that also has a convex shape such as $ \Omega $.</p>
 <h3 id="12-semi-infinite-programming-problem-sip">1.2 Semi-infinite programming problem <em>(SIP)</em></h3>
@@ -501,8 +501,7 @@ $$
 g(x + h) = g(x) + g'(x)h + R(x, h)
 \end{equation}
 $$</p>
-<p>Where $ h $ is a step vector from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder o</p>
-<p>f this linear approximation. Then, with this approximation the root can be found as:
+<p>Where $ h $ is a step vector from the point $ x $ that we want to approximate and $ R(x, h) $ is the remainder of this linear approximation. Then, with this approximation the root can be found as:
 $$
 \begin{equation}
 \displaylines{
@@ -603,7 +602,7 @@ $$</p>
     k = k + 1
   return Hkk
 </code></pre>
-<h3 id="22-lagrange-multipliers">2.2 Lagrange Multipliers</h3>
+<h3 id="23-lagrange-multipliers">2.3 Lagrange Multipliers</h3>
 <p>This is one of the fundamental techniques of constrained optimization. Here the technique is reviewed incrementally, starting from one equality constraint, then with several equality constraints and finally with inequality constraints.</p>
 <p>This method appears naturally when the unconstrained problem $ \min_{x \in \bb{R}} f(x) $ becomes constrained by one equality: 
 $$
@@ -659,7 +658,7 @@ $$
   \nabla \cc{L_x} (x^{\star}, \lambda) = 0.
 \end{equation}
 $$</p>
-<h3 id="23-kkt-optimality-conditions">2.3 KKT optimality conditions</h3>
+<h3 id="24-kkt-optimality-conditions">2.4 KKT optimality conditions</h3>
 <p>Known as <em>First-Order Necessary Conditions</em>, are conditions concerned to the gradients of a local solution $ x^\star $. As such, they are statements that must be true for a given $ x^\star $. At its core, this conditions are based on a step-wise strategy when the function value is optimized.</p>
 <p>This strategy states that if you cannot find a step vector $ s $ such that $ \nabla f(x) s &lt; 0 $ and also $ \nabla g_i(x) s \geq 0 $ for the general problem $ \eqref{eq-gralproblem} $, it means that you have reached an optimal value bacause the function cannot get a lower value while satisfying the constraints. In fact, geometrically this point is met when both $ \nabla g_i(x) $ and $ \nabla f(x) $ point to the same direction: $ \nabla f(x) = \lambda \nabla g_i(x) $ for $ \lambda \in \bb{R} $. That is $ \nabla_{x} \cc{L}(x, \lambda) $, the <em>Lagrangian</em> gradient respect $ x $ of $ \eqref{eq-lagrangian} $.</p>
 <p>As this method is based on <em>first-order approximations</em> i.e. <em>gradients</em>, a qualification must be satisfied in order to capture correctly the geometric features of the neighborhood of $ x $. This qualification is provided in the following definition <a href="#ref2">[2]</a>.</p>
@@ -775,7 +774,7 @@ $$
   \quad          A_i d − \gamma \leq b_i, \; i = m_e + 1, ..., m
 }
 $$</p>
-<p>where $ \gamma $ is an artifial variable as in $ \eqref{capsipex1} $ and $ d $, $ A_i $, $ b_i $, $ m_e $, $ m $ are defined as in $ \eqref{def-qp} $.</p>
+<p>where $ \gamma $ is an artificial variable as in $ \eqref{capsipex1} $ and $ d $, $ A_i $, $ b_i $, $ m_e $, $ m $ are defined as in $ \eqref{def-qp} $.</p>
 <h3 id="34-line-search-and-merit-function">3.4 Line Search and Merit Function</h3>
 <p>Each SQP iteration outputs a vector $ d_k $ that will step the current $ x_k $ towards the optimal value:
 $$
@@ -1144,4 +1143,4 @@ pp. 85-103.  <br>
       content.classList.remove("column-content");
     } 
   </script>
-</html>Generated with NeatPosts by LogicFoundries </br>Last updated: 2022-10-27 20:09:23.384620
+</html>Generated with NeatPosts by LogicFoundries </br>Last updated: 2022-11-07 12:41:00.607147
